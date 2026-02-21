@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import ItineraryItem from '@/components/ItineraryItem';
 import ItemContainer from '@/components/ItemContainer';
+import ItineraryDay from '@/components/ItineraryDay';
 
 export default function Trip() {
   // split screen resizing logic
@@ -70,12 +71,18 @@ export default function Trip() {
           {/* wishlist container */}
           <ItemContainer id="wishlistContainer" wishlist={true}>
             <ItineraryItem id={0} wishlistItem={true} destName="Central Place" destDesc="null" destImg="/img_placeholder.svg" />
-            <ItineraryItem id={0} wishlistItem={true} destName="Central Place" destDesc="null" destImg="/img_placeholder.svg" />
+            <ItineraryItem id={1} wishlistItem={true} destName="Central Place" destDesc="null" destImg="/img_placeholder.svg" />
           </ItemContainer>
         </div>
 
 
         {/* trip days */}
+        <div className="w-8/10 mx-auto flex flex-col gap-8 mt-10 mb-10">
+          <ItineraryDay date={new Date()}>
+            <ItineraryItem id={2} wishlistItem={false} destName="Central Place" destDesc="null" destImg="/img_placeholder.svg" />
+            <ItineraryItem id={3} wishlistItem={false} destName="Central Place" destDesc="null" destImg="/img_placeholder.svg" />
+          </ItineraryDay>
+        </div>
       </div>
       <div id="resize-handle" className="w-1.5 bg-gray-600 hover:bg-gray-400 cursor-col-resize"></div>
       <div id="mapContainer" className="flex-1 min-w-1/10 overflow-hidden bg-sky-100">
