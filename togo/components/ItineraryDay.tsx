@@ -1,9 +1,10 @@
-import { useState, type ReactNode } from 'react';
+import { ReactElement, useState } from 'react';
 import ItemContainer from "./ItemContainer";
+import ItineraryItem, { ItineraryItemProps } from './ItineraryItem';
 
 export interface ItineraryDayProps {
   date: Date;
-  children?: ReactNode;
+  children?: ReactElement<ItineraryItemProps> | ReactElement<ItineraryItemProps[]>[];
 }
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
@@ -12,10 +13,11 @@ const dateFormatter = new Intl.DateTimeFormat(undefined, {
   day: 'numeric'
 });
 
-export default function ItineraryDay({date, children} : ItineraryDayProps) {
-  const dateStr = date.toLocaleDateString();
-  const dateStrWithHyphens = dateStr.replaceAll("/", "-");
+export function getItineraryDayId(date: Date) {
+  return date.toLocaleDateString().replaceAll("/", "-");
+}
 
+export default function ItineraryDay({date, children} : ItineraryDayProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   function collapseContainer() {
@@ -32,7 +34,7 @@ export default function ItineraryDay({date, children} : ItineraryDayProps) {
         <h3 className="m-0">{dateFormatter.format(date)}</h3>
       </div>
       <div hidden={isCollapsed}>
-        <ItemContainer id={dateStrWithHyphens} wishlist={false}>
+        <ItemContainer id={getItineraryDayId(date)} wishlist={false}>
           {children}
         </ItemContainer>
       </div>

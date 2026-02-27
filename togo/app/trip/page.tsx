@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import ItineraryItem, { ItineraryItemProps } from '@/components/ItineraryItem';
 import ItemContainer from '@/components/ItemContainer';
-import ItineraryDay, { ItineraryDayProps } from '@/components/ItineraryDay';
+import ItineraryDay, { ItineraryDayProps, getItineraryDayId } from '@/components/ItineraryDay';
 import { createCookiesWithMutableAccessCheck } from 'next/dist/server/web/spec-extension/adapters/request-cookies';
 
 export default function Trip() {
@@ -82,6 +82,17 @@ export default function Trip() {
     setWishlistItems(wlItems);
 
     /* TODO: fill in itinerary days */
+    let dayContainers : ItineraryDayProps[] = [];
+    // for each day in db, create a dayContainer
+    //    for each dayContainer made, add ItineraryItemProps
+    let dayItems : ItineraryItemProps[] = [];
+    dayItems.push({id: 0, destName: "Central Park", destDesc: "Central park is considered the heart of New York. With the park spanning over 800 acres, visitors can walk around scenic paths and discover an abundance of attractions!", destImg: "https://lh3.googleusercontent.com/gps-cs-s/AHVAweqKCop4voDjTEiAlmhsYYEK0tCj8zvKerfFK201dC3bigw31EvAYeVl3aKjftWVc8sJEyoExHTH20m9cRcwA2nwVodKqlf7R1mnUhHJabnGVJaQpRQ-ta_grh-TI_OuTyeGXi2a=s1360-w1360-h1020-rw", itemNote: "Picnic"});
+    dayItems.push({id: 1, destName: "Times Square", destDesc: "Times Square description", destImg: "/img_placeholder.svg", itemNote: "Shopping"});
+    let day : ItineraryDayProps = {date: new Date(), children: dayItems.map(item => (
+      <ItineraryItem key={item.id} {...item} />
+    ))};
+    dayContainers.push(day);
+    setItineraryDayItems(dayContainers);
   }, []);
 
   return (
@@ -104,14 +115,7 @@ export default function Trip() {
           {/* wishlist container */}
           <ItemContainer id="wishlistContainer" wishlist={true}>
             {wishlistItems.map(item => (
-              <ItineraryItem
-                key={item.id}
-                id={item.id}
-                destName={item.destName}
-                destDesc={item.destDesc}
-                destImg={item.destImg}
-                itemNote={item.itemNote}
-              />
+              <ItineraryItem key={item.id} {...item}/>
             ))}
           </ItemContainer>
         </div>
@@ -119,14 +123,11 @@ export default function Trip() {
 
         {/* trip days */}
         <div id="itineraryDaysContainer" className="w-8/10 mx-auto flex flex-col gap-8 mt-10 mb-10">
-          <ItineraryDay date={new Date()}>
-            <ItineraryItem id={2} destName="Central Park" destDesc="Central park is considered the heart of New York. With the park spanning over 800 acres, visitors can walk around scenic paths and discover an abundance of attractions!" destImg="https://lh3.googleusercontent.com/gps-cs-s/AHVAweqKCop4voDjTEiAlmhsYYEK0tCj8zvKerfFK201dC3bigw31EvAYeVl3aKjftWVc8sJEyoExHTH20m9cRcwA2nwVodKqlf7R1mnUhHJabnGVJaQpRQ-ta_grh-TI_OuTyeGXi2a=s1360-w1360-h1020-rw" itemNote="Picnic" />
-            <ItineraryItem id={3} destName="Central Park" destDesc="Central park is considered the heart of New York. With the park spanning over 800 acres, visitors can walk around scenic paths and discover an abundance of attractions! Central park is considered the heart of New York. With the park spanning over 800 acres, visitors can walk around scenic paths and discover an abundance of attractions!" destImg="/img_placeholder.svg" itemNote="Bike" />
-          </ItineraryDay>
-          <ItineraryDay date={new Date(2025, 1, 24)}>
-            <ItineraryItem id={4} destName="Central Park" destDesc="Central park is considered the heart of New York. With the park spanning over 800 acres, visitors can walk around scenic paths and discover an abundance of attractions!" destImg="https://lh3.googleusercontent.com/gps-cs-s/AHVAweqKCop4voDjTEiAlmhsYYEK0tCj8zvKerfFK201dC3bigw31EvAYeVl3aKjftWVc8sJEyoExHTH20m9cRcwA2nwVodKqlf7R1mnUhHJabnGVJaQpRQ-ta_grh-TI_OuTyeGXi2a=s1360-w1360-h1020-rw" itemNote="Picnic" />
-            <ItineraryItem id={5} destName="Central Park" destDesc="Central park is considered the heart of New York. With the park spanning over 800 acres, visitors can walk around scenic paths and discover an abundance of attractions! Central park is considered the heart of New York. With the park spanning over 800 acres, visitors can walk around scenic paths and discover an abundance of attractions!" destImg="/img_placeholder.svg" itemNote="Bike" />
-          </ItineraryDay>
+          {itineraryDayItems.map(dayContainer => (
+            <ItineraryDay key={getItineraryDayId(dayContainer.date)} date={dayContainer.date}>
+              {dayContainer.children}
+            </ItineraryDay>
+          ))}
         </div>
       </div>
       <div id="resize-handle" className="w-1.5 bg-gray-600 hover:bg-gray-400 cursor-col-resize"></div>
