@@ -1,11 +1,16 @@
-.itinerary-item:hover > button {
-  display: inline;
+.delete-button > svg > path {
+  fill: gray;
 }
-
-.itinerary-item > button {
-  display: none;
-}
-
-.itinerary-item > button:hover > svg > path {
+.delete-button:hover > svg > path {
   fill: red;
+}
+
+.move-icon > path {
+  stroke: gray;
+}
+.move-icon:hover {
+  cursor: grab;
+}
+.move-icon:hover > path {
+  stroke: black;
 }
