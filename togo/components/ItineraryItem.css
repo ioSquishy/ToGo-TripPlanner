@@ -1,0 +1,11 @@
+.itinerary-item:hover > button {
+  display: inline;
+}
+
+.itinerary-item > button {
+  display: none;
+}
+
+.itinerary-item > button:hover > svg > path {
+  fill: red;
+}

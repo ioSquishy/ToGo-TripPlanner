@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "../components/ItineraryItem.css";
 
 :root {
   --background: #ffffff;
