@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-interface ItineraryItemProps {
+export interface ItineraryItemProps {
   id: number;
   wishlistItem?: boolean; // passed in through ItemContainer
   destName: string;

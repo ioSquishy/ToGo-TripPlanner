@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import ItemContainer from "./ItemContainer";
 
-interface ItineraryDayProps {
+export interface ItineraryDayProps {
   date: Date;
   children?: ReactNode;
 }
