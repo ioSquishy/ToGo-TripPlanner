@@ -24,8 +24,8 @@ export default function ItineraryItem({ id, wishlistItem, destName, destDesc, de
       <div className={`shrink bg-gray-50 rounded-lg border-1 border-dashed overflow-hidden ${wishlistItem ? "w-55 h-18 flex-none" : "w-full min-h-20"}`}>
         {/* main destination details */}
         <div className="flex flex-nowrap justify-between items-center h-full">
-          <img src={destImg ? destImg : "img_placeholder.svg"} className="h-20 w-20 object-cover shrink-0" />
-          <button onClick={expandItem} className={`text-start select-text ${wishlistItem ? "cursor-default" : "cursor-pointer"}`}>
+          <img src={destImg ? destImg : "img_placeholder.svg"} className="h-20 w-20 object-cover grow-0 shrink-0" />
+          <button onClick={expandItem} className={`grow text-start select-text ${wishlistItem ? "cursor-default" : "cursor-pointer"}`}>
             <div className="ml-2 min-w-0 flex-1">
               <h5 className="m-0 line-clamp-3">{destName}</h5>
               <p className="text-xs line-clamp-3" hidden={wishlistItem}>{destDesc}</p>

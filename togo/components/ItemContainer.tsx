@@ -19,9 +19,9 @@ export default function ItemContainer({id, wishlist, children}: ItemContainerPro
         })}
       </div>
       {/* drag and drop card */}
-      <div className="w-full h-20 border border-1 border-dashed rounded-lg mt-5 select-none flex items-center justify-center bg-gray-50">
-        <h5 className="m-0 text-gray-400 font-normal">+ Drop/Add Places Here</h5>
-      </div>
+      <button className="group w-full h-20 cursor-pointer border border-1 border-dashed rounded-lg mt-5 select-none flex items-center justify-center bg-gray-50">
+        <h5 className="m-0 text-gray-400 group-hover:text-black font-normal">+ Drop/Add Places Here</h5>
+      </button>
     </div>
   );
 }
