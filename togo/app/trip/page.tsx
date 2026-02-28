@@ -92,6 +92,14 @@ export default function Trip() {
     dayItems.push({id: 2, index: 1, destName: "Times Square", destDesc: "Times Square description", destImg: "/img_placeholder.svg", itemNote: "Shopping"});
     let day : ItineraryDayProps = {date: new Date(), items: dayItems};
     dayContainers.push(day);
+
+    let tomorrowDate = new Date();
+    tomorrowDate.setDate(new Date().getDate() + 1);
+    let dayItems2 : ItineraryItemProps[] = [];
+    dayItems2.push({id: 3, index: 0, destName: "Central Park", destDesc: "Central park is considered the heart of New York. With the park spanning over 800 acres, visitors can walk around scenic paths and discover an abundance of attractions!", destImg: "https://lh3.googleusercontent.com/gps-cs-s/AHVAweqKCop4voDjTEiAlmhsYYEK0tCj8zvKerfFK201dC3bigw31EvAYeVl3aKjftWVc8sJEyoExHTH20m9cRcwA2nwVodKqlf7R1mnUhHJabnGVJaQpRQ-ta_grh-TI_OuTyeGXi2a=s1360-w1360-h1020-rw", itemNote: "Picnic"});
+    dayItems2.push({id: 4, index: 1, destName: "Times Square", destDesc: "Times Square description", destImg: "/img_placeholder.svg", itemNote: "Shopping"});
+    let day2 : ItineraryDayProps = {date: tomorrowDate, items: dayItems2};
+    dayContainers.push(day2);
     setItineraryDays(dayContainers);
   }, []);
 
