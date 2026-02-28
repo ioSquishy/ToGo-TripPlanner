@@ -4,7 +4,9 @@ import { useEffect, useState } from 'react';
 import ItineraryItem, { ItineraryItemProps } from '@/components/ItineraryItem';
 import ItemContainer from '@/components/ItemContainer';
 import ItineraryDay, { ItineraryDayProps, getItineraryDayId } from '@/components/ItineraryDay';
-import { createCookiesWithMutableAccessCheck } from 'next/dist/server/web/spec-extension/adapters/request-cookies';
+import { DragDropContext, DropResult } from '@hello-pangea/dnd';
+
+const wishlistContainerId = "wishlistContainer";
 
 export default function Trip() {
   // split screen resizing logic
@@ -55,13 +57,13 @@ export default function Trip() {
   }, []);
 
   const [wishlistItems, setWishlistItems] = useState<ItineraryItemProps[]>([]);
-  const [itineraryDayItems, setItineraryDayItems] = useState<ItineraryDayProps[]>([]);
+  const [itineraryDays, setItineraryDays] = useState<ItineraryDayProps[]>([]);
 
   // load itinerary
   useEffect(() => {
     const tripName = document.getElementById("tripName");
     const tripDates = document.getElementById("tripDates");
-    const wishlistContainer = document.getElementById("wishlistContainer");
+    const wishlistContainer = document.getElementById(wishlistContainerId);
     const itineraryDaysContainer = document.getElementById("itineraryDaysContainer");
 
     if (!tripName || !tripDates || !wishlistContainer || !itineraryDaysContainer) {
@@ -78,7 +80,7 @@ export default function Trip() {
     /* TODO: fill in wishlist container */
     let wlItems : ItineraryItemProps[] = [];
     // push items from db in a loop to wlItems
-    wlItems.push({id: 0, destName: "Central Park", destDesc: "Central park is considered the heart of New York. With the park spanning over 800 acres, visitors can walk around scenic paths and discover an abundance of attractions!", destImg: "https://lh3.googleusercontent.com/gps-cs-s/AHVAweqKCop4voDjTEiAlmhsYYEK0tCj8zvKerfFK201dC3bigw31EvAYeVl3aKjftWVc8sJEyoExHTH20m9cRcwA2nwVodKqlf7R1mnUhHJabnGVJaQpRQ-ta_grh-TI_OuTyeGXi2a=s1360-w1360-h1020-rw", itemNote: "Picnic"});
+    wlItems.push({id: 0, index: 0, destName: "Central Park", destDesc: "Central park is considered the heart of New York. With the park spanning over 800 acres, visitors can walk around scenic paths and discover an abundance of attractions!", destImg: "https://lh3.googleusercontent.com/gps-cs-s/AHVAweqKCop4voDjTEiAlmhsYYEK0tCj8zvKerfFK201dC3bigw31EvAYeVl3aKjftWVc8sJEyoExHTH20m9cRcwA2nwVodKqlf7R1mnUhHJabnGVJaQpRQ-ta_grh-TI_OuTyeGXi2a=s1360-w1360-h1020-rw", itemNote: "Bike"});
     setWishlistItems(wlItems);
 
     /* TODO: fill in itinerary days */
@@ -86,17 +88,66 @@ export default function Trip() {
     // for each day in db, create a dayContainer
     //    for each dayContainer made, add ItineraryItemProps
     let dayItems : ItineraryItemProps[] = [];
-    dayItems.push({id: 0, destName: "Central Park", destDesc: "Central park is considered the heart of New York. With the park spanning over 800 acres, visitors can walk around scenic paths and discover an abundance of attractions!", destImg: "https://lh3.googleusercontent.com/gps-cs-s/AHVAweqKCop4voDjTEiAlmhsYYEK0tCj8zvKerfFK201dC3bigw31EvAYeVl3aKjftWVc8sJEyoExHTH20m9cRcwA2nwVodKqlf7R1mnUhHJabnGVJaQpRQ-ta_grh-TI_OuTyeGXi2a=s1360-w1360-h1020-rw", itemNote: "Picnic"});
-    dayItems.push({id: 1, destName: "Times Square", destDesc: "Times Square description", destImg: "/img_placeholder.svg", itemNote: "Shopping"});
-    let day : ItineraryDayProps = {date: new Date(), children: dayItems.map(item => (
-      <ItineraryItem key={item.id} {...item} />
-    ))};
+    dayItems.push({id: 1, index: 0, destName: "Central Park", destDesc: "Central park is considered the heart of New York. With the park spanning over 800 acres, visitors can walk around scenic paths and discover an abundance of attractions!", destImg: "https://lh3.googleusercontent.com/gps-cs-s/AHVAweqKCop4voDjTEiAlmhsYYEK0tCj8zvKerfFK201dC3bigw31EvAYeVl3aKjftWVc8sJEyoExHTH20m9cRcwA2nwVodKqlf7R1mnUhHJabnGVJaQpRQ-ta_grh-TI_OuTyeGXi2a=s1360-w1360-h1020-rw", itemNote: "Picnic"});
+    dayItems.push({id: 2, index: 1, destName: "Times Square", destDesc: "Times Square description", destImg: "/img_placeholder.svg", itemNote: "Shopping"});
+    let day : ItineraryDayProps = {date: new Date(), items: dayItems};
     dayContainers.push(day);
-    setItineraryDayItems(dayContainers);
+    setItineraryDays(dayContainers);
   }, []);
 
+
+  /**
+   * Get ItineraryItems from ID of ItineraryDay/Wishlist
+   * @param id id of ItineraryDay of Wishlist id
+   * @returns ItineraryDayProps[] of that container
+   */
+  function getItemContainerItems(id: string) {
+    return id === wishlistContainerId 
+      ? wishlistItems 
+      : itineraryDays.find(d => getItineraryDayId(d.date) === id)?.items || [];
+  }
+  // drag and drop logic
+  function onDragEnd(result: DropResult) {
+    const {source, destination} = result;
+
+    // if no destsination, return
+    if (!destination) return;
+
+    // get list of all ItineraryItems in both source container and destination container
+    const sameContainer = source.droppableId === destination.droppableId; // true if item didn't move containers
+    const sourceList = [...getItemContainerItems(source.droppableId)];
+    const destList = sameContainer ? sourceList : [...getItemContainerItems(destination.droppableId)];
+
+    // remove ItineraryItem from source list
+    const [movedItem] = sourceList.splice(source.index, 1);
+    // add ItineraryItem to dest list
+    destList.splice(destination.index, 0, movedItem);
+
+    // update source container
+    if (source.droppableId === wishlistContainerId) { 
+      setWishlistItems(sourceList);
+    } else {
+      // go through each itinerary day
+      setItineraryDays(prev => prev.map(day => (
+        // if this day was this source container, update list (or else do not change)
+        getItineraryDayId(day.date) === source.droppableId ? { ...day, items: sourceList } : day
+      )));
+    }
+    // update destination container
+    if (destination.droppableId === wishlistContainerId) { 
+      setWishlistItems(destList);
+    } else if (source.droppableId !== destination.droppableId) {
+      // go through each itinerary day
+      setItineraryDays(prev => prev.map(day => (
+        // if this day is the destination container, update list
+        getItineraryDayId(day.date) === destination.droppableId ? { ...day, items: destList } : day
+      )));
+    }
+  }
+
   return (
-    <div className="flex w-full h-screen">
+    <DragDropContext onDragEnd={onDragEnd}>
+      <div className="flex w-full h-screen">
       <div id="dashboardContainer" className="w-4/10 min-w-1/4 overflow-auto bg-gray-300  no-scrollbar">
         {/* trip name card container */}
         <div className="w-8/10 mx-auto my-8 bg-gray-50 rounded-lg p-3 drop-shadow-lg/60">
@@ -113,20 +164,14 @@ export default function Trip() {
           <h2>Itinerary</h2>
           <h5><span className="text-green-600">Wishlist</span> - Drag items below into your itinerary</h5>
           {/* wishlist container */}
-          <ItemContainer id="wishlistContainer" wishlist={true}>
-            {wishlistItems.map(item => (
-              <ItineraryItem key={item.id} {...item}/>
-            ))}
-          </ItemContainer>
+          <ItemContainer id={wishlistContainerId} wishlist={true} items={wishlistItems} />
         </div>
 
 
         {/* trip days */}
         <div id="itineraryDaysContainer" className="w-8/10 mx-auto flex flex-col gap-8 mt-10 mb-10">
-          {itineraryDayItems.map(dayContainer => (
-            <ItineraryDay key={getItineraryDayId(dayContainer.date)} date={dayContainer.date}>
-              {dayContainer.children}
-            </ItineraryDay>
+          {itineraryDays.map(dayContainer => (
+            <ItineraryDay key={getItineraryDayId(dayContainer.date)} {...dayContainer} />
           ))}
         </div>
       </div>
@@ -135,5 +180,6 @@ export default function Trip() {
         // TODO: add google maps
       </div>
     </div>
+    </DragDropContext>
   );
 }
