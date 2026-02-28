@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import ItineraryItem, { ItineraryItemProps } from '@/components/ItineraryItem';
+import { ItineraryItemProps } from '@/components/ItineraryItem';
 import ItemContainer from '@/components/ItemContainer';
 import ItineraryDay, { ItineraryDayProps, getItineraryDayId } from '@/components/ItineraryDay';
 import { DragDropContext, DropResult } from '@hello-pangea/dnd';
@@ -151,6 +151,26 @@ export default function Trip() {
         getItineraryDayId(day.date) === destination.droppableId ? { ...day, items: destList } : day
       )));
     }
+
+    // TODO: update database
+  }
+
+  // Itinerary/Wishlist item delete logic
+  /**
+   * Deletes ItineraryItem from its container
+   * @param id id of ItineraryItem
+   */
+  function deleteItineraryItem(id: number) {
+    setWishlistItems(prev => (
+      prev.filter(item => item.id !== id)
+    ));
+
+    setItineraryDays(prev => prev.map(day => ({
+      ...day,
+      items: day.items.filter(item => item.id !== id)
+    })));
+
+    // TODO: update database
   }
 
   return (
@@ -172,14 +192,14 @@ export default function Trip() {
           <h2>Itinerary</h2>
           <h5><span className="text-green-600">Wishlist</span> - Drag items below into your itinerary</h5>
           {/* wishlist container */}
-          <ItemContainer id={wishlistContainerId} wishlist={true} items={wishlistItems} />
+          <ItemContainer id={wishlistContainerId} wishlist={true} items={wishlistItems} onDelete={deleteItineraryItem} />
         </div>
 
 
         {/* trip days */}
         <div id="itineraryDaysContainer" className="w-8/10 mx-auto flex flex-col gap-8 mt-10 mb-10">
           {itineraryDays.map(dayContainer => (
-            <ItineraryDay key={getItineraryDayId(dayContainer.date)} {...dayContainer} />
+            <ItineraryDay key={getItineraryDayId(dayContainer.date)} {...dayContainer} onDelete={deleteItineraryItem} />
           ))}
         </div>
       </div>

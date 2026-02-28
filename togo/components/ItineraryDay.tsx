@@ -1,10 +1,11 @@
-import { ReactElement, useState } from 'react';
+import { useState } from 'react';
 import ItemContainer from "./ItemContainer";
-import ItineraryItem, { ItineraryItemProps } from './ItineraryItem';
+import { ItineraryItemProps } from './ItineraryItem';
 
 export interface ItineraryDayProps {
   date: Date;
   items: ItineraryItemProps[];
+  onDelete?: (id: number) => void;
 }
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
@@ -17,7 +18,7 @@ export function getItineraryDayId(date: Date) {
   return date.toLocaleDateString().replaceAll("/", "-");
 }
 
-export default function ItineraryDay({date, items} : ItineraryDayProps) {
+export default function ItineraryDay({date, items, onDelete} : ItineraryDayProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   function collapseContainer() {
@@ -34,7 +35,7 @@ export default function ItineraryDay({date, items} : ItineraryDayProps) {
         <h3 className="m-0">{dateFormatter.format(date)}</h3>
       </div>
       <div hidden={isCollapsed}>
-        <ItemContainer id={getItineraryDayId(date)} wishlist={false} items={items} />
+        <ItemContainer id={getItineraryDayId(date)} wishlist={false} items={items} onDelete={onDelete} />
       </div>
     </div>
   );

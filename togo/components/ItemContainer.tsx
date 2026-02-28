@@ -1,5 +1,3 @@
-import React from 'react';
-import type { ReactNode } from 'react';
 import { Droppable } from '@hello-pangea/dnd';
 import ItineraryItem, { ItineraryItemProps } from './ItineraryItem';
 
@@ -7,16 +5,17 @@ interface ItemContainerProps {
   id: string;
   wishlist: boolean;
   items: ItineraryItemProps[];
+  onDelete?: (id: number) => void;
 }
 
-export default function ItemContainer({id, wishlist, items}: ItemContainerProps) {
+export default function ItemContainer({id, wishlist, items, onDelete}: ItemContainerProps) {
   return (
     <Droppable droppableId={id} direction={wishlist ? "horizontal" : "vertical"}>
       {(provided) => (
         <div ref={provided.innerRef} {...provided.droppableProps}>
-          <div id={id} className={`flex gap-5 overflow-hidden w-full min-h-18 ${wishlist ? "flex-row" : "flex-col"}`}>
+          <div id={id} className={`flex gap-5 overflow-hidden w-full ${wishlist ? "flex-row" : "flex-col"}`}>
             {items.map((item, index) => (
-              <ItineraryItem key={item.id} {...item} index={index} wishlistItem={wishlist} />
+              <ItineraryItem key={item.id} {...item} index={index} wishlistItem={wishlist} onDelete={onDelete} />
             ))}
             {provided.placeholder}
           </div>

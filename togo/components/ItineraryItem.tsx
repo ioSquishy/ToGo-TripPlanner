@@ -9,16 +9,21 @@ export interface ItineraryItemProps {
   destDesc: string;
   destImg?: string;
   itemNote?: string;
+  onDelete?: (id: number) => void;
 }
 
-export default function ItineraryItem({ id, index, wishlistItem, destName, destDesc, destImg, itemNote }: ItineraryItemProps) {
+export default function ItineraryItem({ id, index, wishlistItem, destName, destDesc, destImg, itemNote, onDelete }: ItineraryItemProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   function expandItem() {
     setIsExpanded(prev => !prev);
   }
 
   function handleDelete() {
-    
+    if (onDelete) {
+      onDelete(id);
+    } else {
+      console.error("No delete function implemented.");
+    }
   }
 
   return (
