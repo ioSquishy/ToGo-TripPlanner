@@ -22,3 +22,8 @@
 .save-note-button:hover > svg > path {
   fill: black;
 }
+
+.cancel-note-button:hover > svg {
+  stroke: red;
+  stroke-width: 4;
+}
