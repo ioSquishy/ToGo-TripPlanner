@@ -178,12 +178,20 @@ export default function Trip() {
       <div className="flex w-full h-screen">
       <div id="dashboardContainer" className="w-4/10 min-w-1/4 overflow-auto bg-gray-300  no-scrollbar">
         {/* trip name card container */}
-        <div className="w-8/10 mx-auto my-8 bg-gray-50 rounded-lg p-3 drop-shadow-lg/60">
-          <h1 id="tripName"></h1>
-          {/* trip dates container */}
-          <div className="bg-gray-200 w-fit px-3 py-2 rounded-md my-3 flex gap-2">
-            <img src="/calendar_icon.svg" alt="Calendar icon"></img>
-            <p id="tripDates" className="font-bold"></p>
+        <div className="w-8/10 mx-auto my-8 bg-gray-50 rounded-lg p-3 drop-shadow-lg/60 flex">
+          {/* trip name and dates */}
+          <div>
+            <h1 id="tripName"></h1>
+            <div className="bg-gray-200 w-fit px-3 py-2 rounded-md my-3 flex gap-2">
+              <img src="/calendar_icon.svg" alt="Calendar icon"></img>
+              <p id="tripDates" className="font-bold"></p>
+            </div>
+          </div>
+          {/* edit trip button */}
+          <div className="ml-auto mt-3 position-static">
+            <button className="h-7 w-7 cursor-pointer">
+              <img src="/menu_vertical_icon.svg" alt="Edit Trip Icon" />
+            </button>
           </div>
         </div>
 
