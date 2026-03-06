@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import ItemContainer from "./ItemContainer";
-import { ItineraryItemProps } from './ItineraryItem';
+import { ItineraryItemProps, MapLocation } from './ItineraryItem';
 
 export interface ItineraryDayProps {
   date: Date;
   items: ItineraryItemProps[];
-  onDelete?: (id: number) => void;
+  onItemCreate?: (location: MapLocation, containerId: number) => void;
+  onItemDelete?: (id: number) => void;
 }
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
@@ -18,7 +19,7 @@ export function getItineraryDayId(date: Date) {
   return date.toLocaleDateString().replaceAll("/", "-");
 }
 
-export default function ItineraryDay({date, items, onDelete} : ItineraryDayProps) {
+export default function ItineraryDay(props : ItineraryDayProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   function collapseContainer() {
@@ -32,10 +33,10 @@ export default function ItineraryDay({date, items, onDelete} : ItineraryDayProps
         <button onClick={collapseContainer} className="w-10 cursor-pointer">
           <img src={isCollapsed ? "/collapse_icon-closed.svg" : "/collapse_icon-open.svg"} />
         </button>
-        <h3 className="m-0">{dateFormatter.format(date)}</h3>
+        <h3 className="m-0">{dateFormatter.format(props.date)}</h3>
       </div>
       <div hidden={isCollapsed}>
-        <ItemContainer id={getItineraryDayId(date)} wishlist={false} items={items} onDelete={onDelete} />
+        <ItemContainer id={getItineraryDayId(props.date)} wishlist={false} items={props.items} onItemCreate={props.onItemCreate} onItemDelete={props.onItemDelete} />
       </div>
     </div>
   );

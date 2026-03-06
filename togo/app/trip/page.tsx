@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ItineraryItemProps } from '@/components/ItineraryItem';
+import { ItineraryItemProps, MapLocation } from '@/components/ItineraryItem';
 import ItemContainer from '@/components/ItemContainer';
 import ItineraryDay, { ItineraryDayProps, getItineraryDayId } from '@/components/ItineraryDay';
 import { DragDropContext, DropResult } from '@hello-pangea/dnd';
@@ -87,6 +87,7 @@ export default function Trip() {
     let dayContainers : ItineraryDayProps[] = [];
     // for each day in db, create a dayContainer
     //    for each dayContainer made, add ItineraryItemProps
+    //        for each ItineraryItemProp, add marker to google map
     let dayItems : ItineraryItemProps[] = [];
     dayItems.push({id: 1, index: 0, itemName: "Central Park", itemDesc: "Central park is considered the heart of New York. With the park spanning over 800 acres, visitors can walk around scenic paths and discover an abundance of attractions!", destImg: "https://lh3.googleusercontent.com/gps-cs-s/AHVAweqKCop4voDjTEiAlmhsYYEK0tCj8zvKerfFK201dC3bigw31EvAYeVl3aKjftWVc8sJEyoExHTH20m9cRcwA2nwVodKqlf7R1mnUhHJabnGVJaQpRQ-ta_grh-TI_OuTyeGXi2a=s1360-w1360-h1020-rw", itemNote: "Picnic"});
     dayItems.push({id: 2, index: 1, itemName: "Times Square", itemDesc: "Times Square description", destImg: "/img_placeholder.svg", itemNote: "Shopping"});
@@ -155,7 +156,16 @@ export default function Trip() {
     // TODO: update database
   }
 
-  // Itinerary/Wishlist item delete logic
+  /**
+   * Creates an ItineraryItem and adds it to specified containerId
+   * @param location location of item
+   * @param containerId id of container
+   */
+  function createItineraryItem(location: MapLocation, containerId: number) {
+    // TODO: create an ItineraryItem and add it to container
+    // TODO: add marker to map
+  }
+
   /**
    * Deletes ItineraryItem from its container
    * @param id id of ItineraryItem
@@ -170,7 +180,8 @@ export default function Trip() {
       items: day.items.filter(item => item.id !== id)
     })));
 
-    // TODO: update database
+    // TODO: remove itinerary item with id from database
+    // TODO: remove items marker from map
   }
 
   return (
@@ -200,14 +211,14 @@ export default function Trip() {
           <h2>Itinerary</h2>
           <h5><span className="text-green-600">Wishlist</span> - Drag items below into your itinerary</h5>
           {/* wishlist container */}
-          <ItemContainer id={wishlistContainerId} wishlist={true} items={wishlistItems} onDelete={deleteItineraryItem} />
+          <ItemContainer id={wishlistContainerId} wishlist={true} items={wishlistItems} onItemCreate={createItineraryItem} onItemDelete={deleteItineraryItem} />
         </div>
 
 
         {/* trip days */}
         <div id="itineraryDaysContainer" className="w-8/10 mx-auto flex flex-col gap-8 mt-10 mb-10">
           {itineraryDays.map(dayContainer => (
-            <ItineraryDay key={getItineraryDayId(dayContainer.date)} {...dayContainer} onDelete={deleteItineraryItem} />
+            <ItineraryDay key={getItineraryDayId(dayContainer.date)} {...dayContainer} onItemCreate={createItineraryItem} onItemDelete={deleteItineraryItem} />
           ))}
         </div>
       </div>

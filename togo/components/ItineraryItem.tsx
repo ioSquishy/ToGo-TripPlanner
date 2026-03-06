@@ -1,8 +1,9 @@
 import { Draggable } from "@hello-pangea/dnd";
 import { useRef, useState } from "react";
 
-interface Location {
-  locationId: number;
+export interface MapLocation {
+  locationId: string;
+  displayName: string;
   locationLat: number;
   locationLon: number;
 }
@@ -19,7 +20,7 @@ export interface ItineraryItemProps {
   onDelete?: (id: number) => void;
 }
 
-export default function ItineraryItem( props : ItineraryItemProps) {
+export default function ItineraryItem( props : ItineraryItemProps ) {
   const [isExpanded, setIsExpanded] = useState(false);
   function expandItem() {
     setIsExpanded(prev => !prev);
@@ -29,7 +30,7 @@ export default function ItineraryItem( props : ItineraryItemProps) {
     if (props.onDelete) {
       props.onDelete(props.id);
     } else {
-      console.error("No delete function implemented.");
+      console.error(`Delete function missing on ItinearyItem with id ${props.id}`);
     }
   }
 
@@ -49,7 +50,6 @@ export default function ItineraryItem( props : ItineraryItemProps) {
       noteRef.current.value = originalNote;
     }
     setIsEditingNote(false);
-    
   }
 
   return (
