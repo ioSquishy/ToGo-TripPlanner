@@ -1,33 +1,40 @@
 import { Draggable } from "@hello-pangea/dnd";
 import { useRef, useState } from "react";
 
+interface Location {
+  locationId: number;
+  locationLat: number;
+  locationLon: number;
+}
+
 export interface ItineraryItemProps {
   id: number;
   index: number; // position in ItemContainer
   wishlistItem?: boolean; // passed in through ItemContainer
-  destName: string;
-  destDesc: string;
+  itemName: string;
+  itemDesc: string;
+  location?: Location;
   destImg?: string;
   itemNote?: string;
   onDelete?: (id: number) => void;
 }
 
-export default function ItineraryItem({ id, index, wishlistItem, destName, destDesc, destImg, itemNote, onDelete }: ItineraryItemProps) {
+export default function ItineraryItem( props : ItineraryItemProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   function expandItem() {
     setIsExpanded(prev => !prev);
   }
 
   function handleDelete() {
-    if (onDelete) {
-      onDelete(id);
+    if (props.onDelete) {
+      props.onDelete(props.id);
     } else {
       console.error("No delete function implemented.");
     }
   }
 
   const [isEditingNote, setIsEditingNote] = useState(false);
-  const [originalNote, setOriginalNote] = useState(itemNote || "");
+  const [originalNote, setOriginalNote] = useState(props.itemNote || "");
   const noteRef = useRef<HTMLTextAreaElement>(null);
   function editNote() {
     setIsEditingNote(true);
@@ -46,18 +53,18 @@ export default function ItineraryItem({ id, index, wishlistItem, destName, destD
   }
 
   return (
-    <Draggable draggableId={id.toString()} index={index}>
+    <Draggable draggableId={props.id.toString()} index={props.index}>
       {(provided, snapshot) => {
         return (
           <div ref={provided.innerRef} {...provided.draggableProps} className="itinerary-item flex flex-row items-center">
-            <div className={`shrink ${snapshot.isDragging ? "bg-gray-100 itinerary-item-dragging" : "bg-gray-50"} rounded-lg border-1 border-dashed overflow-hidden ${wishlistItem ? "w-55 h-18 flex-none" : "w-full min-h-20"}`}>
+            <div className={`shrink ${snapshot.isDragging ? "bg-gray-100 itinerary-item-dragging" : "bg-gray-50"} rounded-lg border-1 border-dashed overflow-hidden ${props.wishlistItem ? "w-55 h-18 flex-none" : "w-full min-h-20"}`}>
               {/* main destination details */}
               <div className="flex flex-nowrap justify-between items-center h-full">
-                <img src={destImg ? destImg : "img_placeholder.svg"} className="h-20 w-20 object-cover grow-0 shrink-0" />
-                <button onClick={expandItem} className={`grow text-start select-text ${wishlistItem ? "cursor-default" : "cursor-pointer"}`}>
+                <img src={props.destImg ? props.destImg : "img_placeholder.svg"} className="h-20 w-20 object-cover grow-0 shrink-0" />
+                <button onClick={expandItem} className={`grow text-start select-text ${props.wishlistItem ? "cursor-default" : "cursor-pointer"}`}>
                   <div className="ml-2 min-w-0 flex-1">
-                    <h5 className="m-0 line-clamp-3">{destName}</h5>
-                    <p className="text-xs line-clamp-3" hidden={wishlistItem}>{destDesc}</p>
+                    <h5 className="m-0 line-clamp-3">{props.itemName}</h5>
+                    <p className="text-xs line-clamp-3" hidden={props.wishlistItem}>{props.itemDesc}</p>
                   </div>
                 </button>
                 {/* move handle */}
@@ -69,9 +76,9 @@ export default function ItineraryItem({ id, index, wishlistItem, destName, destD
               </div>
       
               {/* notes container */}
-              <div className="border-t-1 border-dashed overflow-hidden mx-2" hidden={isExpanded ? false : wishlistItem || !itemNote}>
+              <div className="border-t-1 border-dashed overflow-hidden mx-2" hidden={isExpanded ? false : props.wishlistItem || !props.itemNote}>
                 <div className="flex gap-2 my-1">
-                  <img className="self-start py-2" src="/note_icon.svg" alt="Note icon"></img>
+                  <img className="self-start py-2 pt-2.5" src="/note_icon.svg" alt="Note icon"></img>
                   <textarea ref={noteRef} readOnly={!isEditingNote} onClick={editNote} className={`self-center bg-gray-100 px-3 py-1 rounded-lg field-sizing-content resize-none text-md/5 ${isEditingNote ? "w-full" : "truncate"}`} defaultValue={originalNote} />
                   <button hidden={!isEditingNote} onClick={saveNote} className="save-note-button self-end p-2 bg-blue-100 rounded-lg">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
