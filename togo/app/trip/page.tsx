@@ -44,7 +44,7 @@ export default function TripPage() {
           return;
         }
 
-        const { wishlist: wl, itinerary: it } = await getTripActivities(tripId as string);
+        const { wishlist: wl, itinerary: it } = await getTripActivities(tripId as string, trip.startDate);
 
         setTripInfo({
           userId: trip.userId,

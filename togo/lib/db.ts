@@ -35,7 +35,7 @@ export interface ActivityDocument {
   destImg?: string;
   location?: MapLocation;
   isWishlist: boolean;
-  day: string | null; // null if wishlist
+  day: number | null; // null if wishlist
   index: number;
 }
 
@@ -93,8 +93,12 @@ export async function createTrip(
 
 // ─── Activities ─────────────
 
-/* Fetch all activities for a trip & return them in either itinerary or wishlist */
-export async function getTripActivities(tripId: string): Promise<{
+/* Fetch all activities for a trip & return them in either itinerary or wishlist.
+   startDate is needed here to convert day indexes back into actual dates. */
+export async function getTripActivities(
+  tripId: string,
+  startDate: Date
+): Promise<{
   wishlist: ItineraryItemProps[];
   itinerary: ItineraryDayProps[];
 }> {
@@ -124,14 +128,14 @@ export async function getTripActivities(tripId: string): Promise<{
       firestoreId: a.id,
     }));
 
-  // Group itinerary activities by day
-  const dayMap = new Map<string, ItineraryItemProps[]>();
+  // Group itinerary activities by day index
+  const dayMap = new Map<number, ItineraryItemProps[]>();
   activities
-    .filter((a) => !a.isWishlist && a.day)
+    .filter((a) => !a.isWishlist && a.day !== null)
     .forEach((a, i) => {
-      const day = a.day as string;
-      if (!dayMap.has(day)) dayMap.set(day, []);
-      dayMap.get(day)!.push({
+      const dayIndex = a.day as number;
+      if (!dayMap.has(dayIndex)) dayMap.set(dayIndex, []);
+      dayMap.get(dayIndex)!.push({
         id: i,
         index: a.index,
         itemName: a.itemName,
@@ -143,12 +147,14 @@ export async function getTripActivities(tripId: string): Promise<{
       });
     });
 
+  // Convert day indexes to actual dates (startDate + N days)
   const itinerary: ItineraryDayProps[] = Array.from(dayMap.entries())
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([day, items]) => ({
-      date: new Date(day),
-      items,
-    }));
+    .sort(([a], [b]) => a - b)
+    .map(([dayIndex, items]) => {
+      const date = new Date(startDate);
+      date.setUTCDate(date.getUTCDate() + dayIndex);
+      return { date, items };
+    });
 
   return { wishlist, itinerary };
 }
@@ -180,7 +186,7 @@ export async function updateActivityNote(
 export async function moveActivity(
   tripId: string,
   firestoreId: string,
-  day: string | null,
+  day: number | null,
   isWishlist: boolean,
   index: number
 ): Promise<void> {
