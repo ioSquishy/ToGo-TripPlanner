@@ -3,6 +3,8 @@ import ItineraryItem, {
   ItineraryItemProps
 } from "./ItineraryItem";
 import MapLocation from "@/types/MapLocation";
+import AddItemModal from "./AddItemModal";
+import { useState } from "react";
 
 interface ItemContainerProps {
   id: string;
@@ -13,6 +15,8 @@ interface ItemContainerProps {
 }
 
 export default function ItemContainer(props: ItemContainerProps) {
+  const [addItemModalHidden, setAddItemModalHidden] = useState(true);
+
   function displayAddItemModal() {
     if (!props.onItemCreate) {
       console.error(
@@ -20,43 +24,50 @@ export default function ItemContainer(props: ItemContainerProps) {
       );
       return;
     }
-    // TODO show add item modal
+    setAddItemModalHidden(false);
     // TODO call onItemCreate
   }
 
+  function closeAddItemModal() {
+    setAddItemModalHidden(true);
+  }
+
   return (
-    <Droppable
-      droppableId={props.id}
-      direction={props.wishlist ? "horizontal" : "vertical"}
-    >
-      {(provided) => (
-        <div ref={provided.innerRef} {...provided.droppableProps}>
-          <div
-            id={props.id}
-            className={`flex gap-5 overflow-hidden w-full ${props.wishlist ? "flex-row" : "flex-col"}`}
-          >
-            {props.items.map((item, index) => (
-              <ItineraryItem
-                key={item.id}
-                {...item}
-                index={index}
-                wishlistItem={props.wishlist}
-                onDelete={props.onItemDelete}
-              />
-            ))}
-            {provided.placeholder}
+    <>
+      <Droppable
+        droppableId={props.id}
+        direction={props.wishlist ? "horizontal" : "vertical"}
+      >
+        {(provided) => (
+          <div ref={provided.innerRef} {...provided.droppableProps}>
+            <div
+              id={props.id}
+              className={`flex gap-5 overflow-hidden w-full ${props.wishlist ? "flex-row" : "flex-col"}`}
+            >
+              {props.items.map((item, index) => (
+                <ItineraryItem
+                  key={item.id}
+                  {...item}
+                  index={index}
+                  wishlistItem={props.wishlist}
+                  onDelete={props.onItemDelete}
+                />
+              ))}
+              {provided.placeholder}
+            </div>
+            {/* drag and drop / add button card */}
+            <button
+              onClick={displayAddItemModal}
+              className="group w-full h-20 cursor-pointer border border-1 border-dashed rounded-lg mt-5 select-none flex items-center justify-center bg-gray-50"
+            >
+              <h5 className="m-0 text-gray-400 group-hover:text-black font-normal">
+                + Drop/Add Places Here
+              </h5>
+            </button>
           </div>
-          {/* drag and drop / add button card */}
-          <button
-            onClick={displayAddItemModal}
-            className="group w-full h-20 cursor-pointer border border-1 border-dashed rounded-lg mt-5 select-none flex items-center justify-center bg-gray-50"
-          >
-            <h5 className="m-0 text-gray-400 group-hover:text-black font-normal">
-              + Drop/Add Places Here
-            </h5>
-          </button>
-        </div>
-      )}
-    </Droppable>
+        )}
+      </Droppable>
+      <AddItemModal hidden={addItemModalHidden} onClose={closeAddItemModal} />
+    </>
   );
 }
