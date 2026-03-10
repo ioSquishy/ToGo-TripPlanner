@@ -6,9 +6,12 @@ import {
 import { ItineraryDayProps } from "@/components/trip-page/ItineraryDay";
 import Trip from "@/components/trip-page/Trip";
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { getTrip, getTripActivities } from "@/lib/db";
 import MapLocation from "@/types/MapLocation";
+
+interface TripPageProps {
+  tripIdFromParams: string;
+}
 
 export interface TripProps {
   userId: string; // Firebase UID are strings
@@ -18,9 +21,8 @@ export interface TripProps {
   location: MapLocation;
 }
 
-export default function TripPage() {
-  const searchParams = useSearchParams();
-  const tripId = searchParams.get("tripId");
+export default function TripPage({ tripIdFromParams }: TripPageProps) {
+  const tripId = tripIdFromParams;
 
   const [tripInfo, setTripInfo] = useState<TripProps | null>(null);
   const [wishlist, setWishlist] = useState<ItineraryItemProps[]>([]);
@@ -30,7 +32,7 @@ export default function TripPage() {
 
   useEffect(() => {
     if (!tripId) {
-      setError("No trip ID provided.");
+      setError("No trip ID provided. Use /trip/<tripId>.");
       setLoading(false);
       return;
     }
