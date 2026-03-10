@@ -7,10 +7,25 @@ type PlaceAutocompleteSelectEvent = Event & {
   placePrediction?: google.maps.places.PlacePrediction;
 };
 
-export default function CreateTrip() {
-  const destinationInputRef = useRef<google.maps.places.PlaceAutocompleteElement>(null);
-  const [selectedPlace, setSelectedPlace] = useState<MapLocation | null>(null);
+interface FormValues {
+  destination: MapLocation | null;
+  startDate: string | null;
+  endDate: string | null;
+  users: string[];
+}
 
+export default function CreateTrip() {
+  const destinationInputRef =
+    useRef<google.maps.places.PlaceAutocompleteElement>(null);
+
+  const [formValues, setFormValues] = useState<FormValues>({
+    destination: null,
+    startDate: null,
+    endDate: null,
+    users: [""],
+  });
+
+  // updates form values w/ selected location
   useEffect(() => {
     const destInput = destinationInputRef.current;
     if (!destInput) {
@@ -28,33 +43,46 @@ export default function CreateTrip() {
       });
 
       if (place) {
-        setSelectedPlace({
-          locationId: place.id,
-          displayName: place.displayName ?? "Unknown",
-          formattedAddress: place.formattedAddress ?? "",
-          locationLat: place.location?.lat() ?? 0,
-          locationLon: place.location?.lng() ?? 0
-        })
+        setFormValues((prev) => ({
+          ...prev,
+          destination: {
+            locationId: place.id,
+            displayName: place.displayName ?? "Unknown",
+            formattedAddress: place.formattedAddress ?? "",
+            locationLat: place.location?.lat() ?? 0,
+            locationLon: place.location?.lng() ?? 0,
+          },
+        }));
       } else {
         console.error("Failed to fetch Place");
       }
-    };
+    }
 
     destInput.addEventListener("gmp-select", onSelect);
     return () => destInput.removeEventListener("gmp-select", onSelect);
   }, []);
 
+  // updates remaining form values
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormValues((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (!selectedPlace) {
+    if (!formValues.destination) {
       console.warn("No place selected yet");
       return;
     }
 
-    console.log(selectedPlace);
+    // debugging print
+    // console.log("Values:", formValues);
   }
-  
+
   return (
     <div className="flex items-center justify-center h-screen">
       <div className="flex-col items-center text-center bg-white rounded-lg shadow-black/75 shadow-lg p-4 pb-15">
@@ -83,18 +111,22 @@ export default function CreateTrip() {
           <div id="dates" className="flex">
             <input
               type="date"
-              id="destination"
+              name="startDate"
+              id="startDate"
               placeholder="Start Date"
+              onChange={handleChange}
               className="border border-gray-400 pl-2 mr-1 rounded-md w-1/2"
             ></input>
             <input
               type="date"
-              id="destination"
+              name="endDate"
+              id="endDate"
               placeholder="End"
+              onChange={handleChange}
               className="border border-gray-400 pl-2 ml-1 rounded-md w-1/2"
             ></input>
           </div>
-          <button className="text-gray-600 text-sm text-left mb-10">
+          <button className="text-gray-600 hover:text-blue-500 text-sm text-left mb-10">
             + Invite Trip-Mates
           </button>
 
