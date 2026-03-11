@@ -15,6 +15,7 @@ export interface ItineraryItemProps {
   firestoreId: string; // Firestore document ID for DB
   tripId?: string; // needed for DB
   onDelete?: (id: string) => void;
+  onFocus?: (id: string) => void;
 }
 
 interface ExtraDetails { // extra details section info that has to be called from api
@@ -30,6 +31,9 @@ export default function ItineraryItem(props: ItineraryItemProps) {
 
   const [isExpanded, setIsExpanded] = useState(false);
   function expandItem() {
+    if (!isExpanded && !props.wishlistItem) {
+      props.onFocus?.(props.firestoreId);
+    }
     if (!isExpanded && !extraDetails.retrievedAlready) {
       setExtraDetails(prev => ({ ...prev, retrievedAlready: true }));
       getExtraDetails();

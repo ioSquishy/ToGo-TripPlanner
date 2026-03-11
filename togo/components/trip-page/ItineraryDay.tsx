@@ -10,6 +10,7 @@ export interface ItineraryDayProps {
   tripId?: string;
   onDisplayAddItemModal?: (originatingContainerId: string) => void;
   onItemDelete?: (id: string) => void;
+  onItemFocus?: (id: string) => void;
 }
 
 export const dateFormatter = new Intl.DateTimeFormat(undefined, {
@@ -52,6 +53,7 @@ export default function ItineraryDay(props: ItineraryDayProps) {
           tripId={props.tripId}
           onDisplayAddItemModal={props.onDisplayAddItemModal}
           onItemDelete={props.onItemDelete}
+          onItemFocus={props.onItemFocus}
         />
       </div>
     </div>
