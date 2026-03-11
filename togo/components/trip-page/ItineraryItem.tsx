@@ -124,6 +124,7 @@ export default function ItineraryItem(props: ItineraryItemProps) {
                     onClick={editNote}
                     className={`self-center bg-gray-100 px-3 py-1 rounded-lg field-sizing-content resize-none text-md/5 ${isEditingNote ? "w-full" : "truncate"}`}
                     defaultValue={originalNote}
+                    placeholder={"Click me to add a note!"}
                   />
                   <button
                     hidden={!isEditingNote}
@@ -167,10 +168,7 @@ export default function ItineraryItem(props: ItineraryItemProps) {
               </div>
 
               {/* extra details */}
-              <div
-                className="border-t-1 border-dashed overflow-hidden px-2 py-1"
-                hidden={!isExpanded}
-              >
+              <div className="border-t-1 border-dashed overflow-hidden px-2 py-1" hidden={!isExpanded}>
                 <p>one day there will be details here</p>
               </div>
             </div>
