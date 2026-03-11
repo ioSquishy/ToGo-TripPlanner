@@ -269,7 +269,7 @@ export default function Trip({ tripInfo, wishlist, itinerary }: tripInfo) {
           </div>
         </div>
       </DragDropContext>
-      <AddItemModal key={addItemModalRenderKey} hidden={addItemModalHidden} onClose={closeAddItemModal} onSubmit={handleItemCreate} wishlistContainerId={wishlistContainerId} itineraryDayOptions={itineraryDays} defaultCheckedContainerId={aimOgContainerId} />
+      <AddItemModal key={addItemModalRenderKey} hidden={addItemModalHidden} onClose={closeAddItemModal} onSubmit={handleItemCreate} wishlistContainerId={wishlistContainerId} itineraryDayOptions={itineraryDays} defaultCheckedContainerId={aimOgContainerId} tripLocation={tripInfo.location} />
     </>
   );
 }

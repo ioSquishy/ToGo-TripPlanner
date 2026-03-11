@@ -9,6 +9,7 @@ export interface AddItemModalProps {
   wishlistContainerId: string;
   itineraryDayOptions: ItineraryDayProps[];
   defaultCheckedContainerId: string;
+  tripLocation: MapLocation;
 }
 
 export interface AddItemModalFormSubmitData {
@@ -54,7 +55,7 @@ export default function AddItemModal(props: AddItemModalProps) {
 
     destInput.addEventListener("gmp-select", onSelect);
     return () => destInput.removeEventListener("gmp-select", onSelect);
-  }, [props.hidden]);
+  }, [props.hidden, props.tripLocation.locationLat, props.tripLocation.locationLon]);
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -90,7 +91,16 @@ export default function AddItemModal(props: AddItemModalProps) {
             id="destination"
             ref={destinationInputRef}
             name="destination"
-            {...({ placeholder: "E.g. New York" } as any)}
+            {...({
+              placeholder: "E.g. New York",
+              locationBias: {
+                center: {
+                  lat: props.tripLocation.locationLat,
+                  lng: props.tripLocation.locationLon,
+                },
+                radius: 50000,
+              },
+            } as any)}
             className="border border-gray-400 rounded-md"
           ></gmp-place-autocomplete>
           <br/>
