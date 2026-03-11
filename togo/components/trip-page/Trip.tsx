@@ -106,30 +106,40 @@ export default function Trip({ tripInfo, wishlist, itinerary, tripId }: tripInfo
     // add ItineraryItem to dest list
     destList.splice(destination.index, 0, movedItem);
 
+    // keep item indices in sync with their array positions after reorder
+    const normalizedSourceList = sourceList.map((item, index) => ({
+      ...item,
+      index,
+    }));
+    const normalizedDestList = destList.map((item, index) => ({
+      ...item,
+      index,
+    }));
+
     // update source container
     if (source.droppableId === wishlistContainerId) {
-      setWishlistItems(sourceList);
+      setWishlistItems(normalizedSourceList);
     } else {
       // go through each itinerary day
       setItineraryDays((prev) =>
         prev.map((day) =>
           // if this day was this source container, update list (or else do not change)
           getItineraryDayId(day.date) === source.droppableId
-            ? { ...day, items: sourceList }
+            ? { ...day, items: normalizedSourceList }
             : day,
         ),
       );
     }
     // update destination container
     if (destination.droppableId === wishlistContainerId) {
-      setWishlistItems(destList);
+      setWishlistItems(normalizedDestList);
     } else if (source.droppableId !== destination.droppableId) {
       // go through each itinerary day
       setItineraryDays((prev) =>
         prev.map((day) =>
           // if this day is the destination container, update list
           getItineraryDayId(day.date) === destination.droppableId
-            ? { ...day, items: destList }
+            ? { ...day, items: normalizedDestList }
             : day,
         ),
       );
