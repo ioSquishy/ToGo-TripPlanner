@@ -4,6 +4,13 @@ import MapLocation from "@/types/MapLocation";
 import { useRef, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
+interface FormValues {
+  location: MapLocation | null;
+  startDate: string | null;
+  endDate: string | null;
+  users: string[];
+}
+
 type PlaceAutocompleteSelectEvent = Event & {
   placePrediction?: google.maps.places.PlacePrediction;
 };
@@ -91,7 +98,7 @@ export default function CreateTrip() {
 
     const data = await res.json();
 
-    router.push(`/trip?tripId=${data.tripId}`);
+    router.push(`/trip/${data.tripId}`);
   }
 
   return (
@@ -115,7 +122,7 @@ export default function CreateTrip() {
           ></gmp-place-autocomplete>
           <label
             htmlFor="dates"
-            className="text-black font-bold font-medium text-left"
+            className="trip-form-label"
           >
             Dates
           </label>
@@ -133,15 +140,14 @@ export default function CreateTrip() {
               name="endDate"
               id="endDate"
               placeholder="End"
-              onChange={handleChange}
-              className="border border-gray-400 pl-2 ml-1 rounded-md w-1/2"
+              className="trip-form-input ml-1"
             ></input>
           </div>
           <button className="text-gray-600 hover:text-blue-500 text-sm text-left mb-10">
             + Invite Trip-Mates
           </button>
 
-          <button className="bg-[#839F5D] text-white font-bold rounded-full pt-1 pb-1 pl-4 pr-4">
+          <button className="trip-form-submit">
             Create Trip
           </button>
         </form>

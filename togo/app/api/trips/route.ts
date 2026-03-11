@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/firebase";
-import { collection, addDoc } from "firebase/firestore";
+import { Timestamp, collection, addDoc } from "firebase/firestore";
 const TRIPS_COLLECTION = "trips";
 
 export async function POST(req: NextRequest) {
@@ -14,8 +14,8 @@ export async function POST(req: NextRequest) {
 
     const docRef = await addDoc(collection(db, TRIPS_COLLECTION), {
       location,
-      startDate,
-      endDate,
+      startDate: startDate ? Timestamp.fromDate(new Date(startDate)) : null,
+      endDate: endDate ? Timestamp.fromDate(new Date(endDate)) : null,
       users,
       createdAt: new Date(),
     });
