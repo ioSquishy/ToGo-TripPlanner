@@ -361,17 +361,9 @@ export default function Trip({
                 <div className="bg-gray-200 w-fit px-3 py-2 rounded-md my-3 flex gap-2">
                   <img src="/calendar_icon.svg" alt="Calendar icon"></img>
                   <p id="tripDates" className="font-bold">
-                    {tripInfo.startDate.toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}{" "}
+                    {tripInfo.startDate.toLocaleDateString()}{" "}
                     -{" "}
-                    {tripInfo.endDate.toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
+                    {tripInfo.endDate.toLocaleDateString()}
                   </p>
                 </div>
               </div>
