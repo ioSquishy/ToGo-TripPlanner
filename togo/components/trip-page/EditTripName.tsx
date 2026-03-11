@@ -23,7 +23,7 @@ export default function EditTripName(props: AddItemProps) {
 
         <div className="flex justify-center">
           <button type="submit" className="trip-form-submit m-5 w-8/10">
-            Add
+            Save
           </button>
         </div>
       </form>
