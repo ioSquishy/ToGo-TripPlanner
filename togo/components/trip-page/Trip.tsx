@@ -213,7 +213,7 @@ export default function Trip({
     const isWishlistItem = containerId === wishlistContainerId;
 
     // fetch place description and photo from Google Places API (new)
-    let itemDesc = location.displayName;
+    let itemDesc = "";
     let destImg: string | undefined;
     try {
       const place = new google.maps.places.Place({ id: location.locationId });
