@@ -1,13 +1,11 @@
 import {
   Map,
-  MapCameraChangedEvent,
   AdvancedMarker,
   Pin,
+  useMap,
 } from "@vis.gl/react-google-maps";
+import { useEffect } from "react";
 import { ItineraryDayProps } from "./ItineraryDay";
-import {
-  ItineraryItemProps
-} from "@/components/trip-page/ItineraryItem";
 
 const DAY_COLORS: Record<number, string> = {
   0:  "#e6194b", 1:  "#3cb44b", 2:  "#4363d8", 3:  "#f58231",
@@ -24,9 +22,33 @@ interface MapViewProps {
   lat: number;
   lon: number;
   itinerary: ItineraryDayProps[];
+  selectedItemId?: string | null;
 }
 
-export default function TripMap({ lat, lon, itinerary }: MapViewProps) {
+export default function TripMap({ lat, lon, itinerary, selectedItemId }: MapViewProps) {
+  const map = useMap();
+
+  // pan to marker when ItineraryItem is expanded
+  useEffect(() => {
+    if (!selectedItemId) return;
+    if (!map) return;
+
+    // get itinerary item location
+    const item = itinerary.flatMap((d) => d.items).find((i) => i.firestoreId === selectedItemId);
+    if (item?.location) {
+      const target = {
+        lat: item.location.locationLat,
+        lng: item.location.locationLon,
+      };
+      // get map bounds
+      const bounds = map.getBounds();
+      if (!bounds || !bounds.contains(target)) {
+        // only pans if not in view
+        map.panTo(target);
+      }
+    }
+  }, [selectedItemId, map, itinerary]);
+
   return (
     <Map
       mapId={"d324cbd014b8ccf5e5e023e5"}
@@ -42,9 +64,13 @@ export default function TripMap({ lat, lon, itinerary }: MapViewProps) {
               lng: location.location?.locationLon ?? 0,
             }}
           >
-            <Pin background={DAY_COLORS[days.dayIndex % 32]} borderColor={DAY_COLORS[days.dayIndex % 32]} glyphColor="white" />
+            <Pin
+              background={DAY_COLORS[days.dayIndex % 32]}
+              borderColor={DAY_COLORS[days.dayIndex % 32]}
+              glyphColor="white"
+            />
           </AdvancedMarker>
-        )),
+        ))
       )}
     </Map>
   );

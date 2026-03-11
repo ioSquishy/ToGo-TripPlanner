@@ -88,6 +88,11 @@ export default function Trip({
     useState<ItineraryItemProps[]>(wishlist);
   const [itineraryDays, setItineraryDays] =
     useState<ItineraryDayProps[]>(itinerary);
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+
+  function handleItemFocus(id: string) {
+    setSelectedItemId(id);
+  }
 
   /**
    * Get ItineraryItems from ID of ItineraryDay/Wishlist
@@ -375,6 +380,7 @@ export default function Trip({
                   tripId={tripId}
                   onDisplayAddItemModal={displayAddItemModal}
                   onItemDelete={deleteItineraryItem}
+                  onItemFocus={handleItemFocus}
                 />
               ))}
             </div>
@@ -391,6 +397,7 @@ export default function Trip({
               lat={tripInfo.location.locationLat}
               lon={tripInfo.location.locationLon}
               itinerary={itineraryDays}
+              selectedItemId={selectedItemId}
             ></TripMap>
           </div>
         </div>

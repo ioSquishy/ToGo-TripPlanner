@@ -10,6 +10,7 @@ interface ItemContainerProps {
   tripId?: string;
   onDisplayAddItemModal?: (originatingContainerId: string) => void;
   onItemDelete?: (id: string) => void;
+  onItemFocus?: (id: string) => void;
 }
 
 export default function ItemContainer(props: ItemContainerProps) {
@@ -40,6 +41,7 @@ export default function ItemContainer(props: ItemContainerProps) {
                   wishlistItem={props.wishlist}
                   tripId={props.tripId}
                   onDelete={props.onItemDelete}
+                  onFocus={props.onItemFocus}
                 />
               ))}
               {provided.placeholder}
