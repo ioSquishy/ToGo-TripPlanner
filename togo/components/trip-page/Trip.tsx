@@ -24,10 +24,6 @@ interface tripInfo {
   tripId: string;
 }
 
-function daysBetweenDates(startDate: Date, endDate: Date) {
-  return Math.floor((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-}
-
 export default function Trip({ tripInfo, wishlist, itinerary }: tripInfo) {
   // split screen resizing logic
   useEffect(() => {
@@ -78,10 +74,8 @@ export default function Trip({ tripInfo, wishlist, itinerary }: tripInfo) {
     };
   }, []);
 
-  const [wishlistItems, setWishlistItems] =
-    useState<ItineraryItemProps[]>(wishlist);
-  const [itineraryDays, setItineraryDays] =
-    useState<ItineraryDayProps[]>(itinerary);
+  const [wishlistItems, setWishlistItems] = useState<ItineraryItemProps[]>(wishlist);
+  const [itineraryDays, setItineraryDays] = useState<ItineraryDayProps[]>(itinerary);
 
   /**
    * Get ItineraryItems from ID of ItineraryDay/Wishlist
@@ -142,7 +136,7 @@ export default function Trip({ tripInfo, wishlist, itinerary }: tripInfo) {
       );
     }
 
-    // TODO: update database
+    // TODO: update database to move ItineraryItem from one container to another
   }
 
   /**
@@ -150,8 +144,10 @@ export default function Trip({ tripInfo, wishlist, itinerary }: tripInfo) {
    * @param location location of item
    * @param containerId id of container
    */
-  function createItineraryItem(location: MapLocation, containerId: number) {
-    // TODO: create an ItineraryItem and add it to container
+  function createItineraryItem(location: MapLocation, containerId: string) {
+    // TODO: create an ItineraryItem with default values
+    // TODO: add item to database to get ID
+    // TODO: add ItineraryItem it to container
     // TODO: add marker to map
   }
 
@@ -173,19 +169,22 @@ export default function Trip({ tripInfo, wishlist, itinerary }: tripInfo) {
     // TODO: remove items marker from map
   }
 
+  // AddItemModel code (popup to add new destination)
   const [addItemModalHidden, setAddItemModalHidden] = useState(true);
   const [aimOgContainerId, setAimOgContainerId] = useState<string>(wishlistContainerId);
+  const [addItemModalRenderKey, setAddItemModalRenderKey] = useState(0);
   function displayAddItemModal(originatingContainerId: string) {
     setAimOgContainerId(originatingContainerId);
+    setAddItemModalRenderKey((prev) => prev + 1); // re-renders so defaulChecked is updated
     setAddItemModalHidden(false);
   }
-
   function closeAddItemModal() {
     setAddItemModalHidden(true);
   }
-
   function handleItemCreate(data: AddItemModalFormSubmitData) {
-
+    data.addedToContainerIds.forEach(id => {
+      createItineraryItem(data.location, id);
+    })
   }
 
   return (
@@ -270,7 +269,7 @@ export default function Trip({ tripInfo, wishlist, itinerary }: tripInfo) {
           </div>
         </div>
       </DragDropContext>
-      <AddItemModal hidden={addItemModalHidden} onClose={closeAddItemModal} onSubmit={handleItemCreate} wishlistContainerId={wishlistContainerId} itineraryDayOptions={itineraryDays} defaultCheckedContainerId={aimOgContainerId} />
+      <AddItemModal key={addItemModalRenderKey} hidden={addItemModalHidden} onClose={closeAddItemModal} onSubmit={handleItemCreate} wishlistContainerId={wishlistContainerId} itineraryDayOptions={itineraryDays} defaultCheckedContainerId={aimOgContainerId} />
     </>
   );
 }
