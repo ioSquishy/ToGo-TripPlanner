@@ -51,8 +51,8 @@ export async function getTrip(tripId: string): Promise<TripDocument | null> {
     id: snap.id,
     userId: data.userId,
     tripName: data.tripName,
-    startDate: data.startDate,
-    endDate: data.endDate,
+    startDate: data.startDate.toDate(),
+    endDate: data.endDate.toDate(),
     location: data.location,
   };
 }
@@ -99,6 +99,8 @@ export async function createTrip(
 export async function getTripActivities(
   tripId: string,
   startDate: Date,
+  onDisplayAddItemModal: (originatingContainerId: string) => void,
+  onItemDelete?: (id: number) => void,
 ): Promise<{
   wishlist: ItineraryItemProps[];
   itinerary: ItineraryDayProps[];
@@ -154,7 +156,7 @@ export async function getTripActivities(
     .map(([dayIndex, items]) => {
       const date = new Date(startDate);
       date.setUTCDate(date.getUTCDate() + dayIndex);
-      return { date, items };
+      return { date, items, onDisplayAddItemModal, onItemDelete };
     });
 
   return { wishlist, itinerary };

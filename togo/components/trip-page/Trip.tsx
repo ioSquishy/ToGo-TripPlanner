@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { ItineraryItemProps } from "@/components/trip-page/ItineraryItem";
-import { ItineraryItemProps } from "@/components/trip-page/ItineraryItem";
 import ItemContainer from "@/components/trip-page/ItemContainer";
 import ItineraryDay, {
   ItineraryDayProps,

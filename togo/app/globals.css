@@ -60,15 +60,15 @@ body {
     padding: 10px;
     border-radius: 0.375rem;
   }
+  .trip-form-submit {
+    background-color: #839f5d;
+    color: #fff;
+    font-weight: 700;
+    border-radius: 9999px;
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
 }
 
-.trip-form-submit {
-  background-color: #839f5d;
-  color: #fff;
-  font-weight: 700;
-  border-radius: 9999px;
-  padding-top: 0.25rem;
-  padding-bottom: 0.25rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
-}
