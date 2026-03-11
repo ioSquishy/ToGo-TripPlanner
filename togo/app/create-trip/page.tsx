@@ -133,7 +133,7 @@ export default function CreateTrip() {
               id="startDate"
               placeholder="Start Date"
               onChange={handleChange}
-              className="border border-gray-400 pl-2 mr-1 rounded-md w-1/2"
+              className="trip-form-input mr-1"
             ></input>
             <input
               type="date"
