@@ -9,7 +9,7 @@ export interface ItineraryDayProps {
   items: ItineraryItemProps[];
   tripId?: string;
   onDisplayAddItemModal?: (originatingContainerId: string) => void;
-  onItemDelete?: (id: number) => void;
+  onItemDelete?: (id: string) => void;
 }
 
 export const dateFormatter = new Intl.DateTimeFormat(undefined, {

@@ -145,7 +145,6 @@ export async function getTripActivities(
       const dayIndex = a.day as number;
       if (!dayMap.has(dayIndex)) dayMap.set(dayIndex, []);
       dayMap.get(dayIndex)!.push({
-        id: i,
         index: a.index,
         itemName: a.itemName,
         itemDesc: a.itemDesc,

@@ -5,7 +5,6 @@ import MapLocation from "@/types/MapLocation";
 import { updateActivityNote } from "@/lib/db";
 
 export interface ItineraryItemProps {
-  id: number;
   index: number; // position in ItemContainer
   wishlistItem?: boolean; // passed in through ItemContainer
   itemName: string;
@@ -13,9 +12,9 @@ export interface ItineraryItemProps {
   location?: MapLocation;
   destImg?: string;
   itemNote?: string;
-  firestoreId?: string; // Firestore document ID for DB
+  firestoreId: string; // Firestore document ID for DB
   tripId?: string; // needed for DB
-  onDelete?: (id: number) => void;
+  onDelete?: (id: string) => void;
 }
 
 export default function ItineraryItem(props: ItineraryItemProps) {
@@ -26,10 +25,10 @@ export default function ItineraryItem(props: ItineraryItemProps) {
 
   function handleDelete() {
     if (props.onDelete) {
-      props.onDelete(props.id);
+      props.onDelete(props.firestoreId);
     } else {
       console.error(
-        `Delete function missing on ItinearyItem with id ${props.id}`,
+        `Delete function missing on ItinearyItem with id ${props.firestoreId}`,
       );
     }
   }
@@ -59,7 +58,7 @@ export default function ItineraryItem(props: ItineraryItemProps) {
   }
 
   return (
-    <Draggable draggableId={props.id.toString()} index={props.index}>
+    <Draggable draggableId={props.firestoreId} index={props.index}>
       {(provided, snapshot) => {
         return (
           <div

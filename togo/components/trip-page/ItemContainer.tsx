@@ -9,7 +9,7 @@ interface ItemContainerProps {
   items: ItineraryItemProps[];
   tripId?: string;
   onDisplayAddItemModal?: (originatingContainerId: string) => void;
-  onItemDelete?: (id: number) => void;
+  onItemDelete?: (id: string) => void;
 }
 
 export default function ItemContainer(props: ItemContainerProps) {
@@ -34,7 +34,7 @@ export default function ItemContainer(props: ItemContainerProps) {
             >
               {props.items.map((item, index) => (
                 <ItineraryItem
-                  key={item.id}
+                  key={item.firestoreId}
                   {...item}
                   index={index}
                   wishlistItem={props.wishlist}

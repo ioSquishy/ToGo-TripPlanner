@@ -40,7 +40,7 @@ export default function TripMap({ lat, lon, itinerary }: MapViewProps) {
       {itinerary?.flatMap((days) =>
         days.items.map((location) => (
           <AdvancedMarker
-            key={location.id}
+            key={location.firestoreId}
             position={{
               lat: location.location?.locationLat ?? 0,
               lng: location.location?.locationLon ?? 0,

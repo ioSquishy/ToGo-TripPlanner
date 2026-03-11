@@ -72,7 +72,7 @@ export default function AddItemModal(props: AddItemModalProps) {
 
     const addedToContainerIds = Array.from(formInputElements)
       .filter((input) => input.checked)
-      .map((input) => input.name);
+      .map((input) => input.value);
 
     props.onSubmit({
       location: selectedPlace,
@@ -111,7 +111,7 @@ export default function AddItemModal(props: AddItemModalProps) {
 
             
             <label className="flex items-center gap-2">
-              <input type="checkbox" name="Wishlist" value={props.wishlistContainerId} defaultChecked={props.wishlistContainerId === props.defaultCheckedContainerId} />
+              <input type="checkbox" name={props.wishlistContainerId} value={props.wishlistContainerId} defaultChecked={props.wishlistContainerId === props.defaultCheckedContainerId} />
               Wishlist
             </label>
 

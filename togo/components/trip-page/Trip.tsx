@@ -12,7 +12,7 @@ import { TripProps } from "@/app/trip/page";
 import TripMap from "./TripMap";
 import MapLocation from "@/types/MapLocation";
 import AddItemModal, { AddItemModalFormSubmitData } from "./AddItemModal";
-import { deleteActivity, moveActivity } from "@/lib/db";
+import { ActivityDocument, addActivity, deleteActivity, moveActivity } from "@/lib/db";
 
 const wishlistContainerId = "wishlistContainer";
 
@@ -177,6 +177,7 @@ export default function Trip({ tripInfo, wishlist, itinerary, tripId }: tripInfo
    */
   async function createItineraryItem(location: MapLocation, containerId: string) {
     let containerItems = getItemContainerItems(containerId);
+    let isWishlistItem = containerId === wishlistContainerId;
     
     // fetch place description and photo from Google Places API (new)
     let itemDesc = location.displayName;
@@ -194,26 +195,37 @@ export default function Trip({ tripInfo, wishlist, itinerary, tripId }: tripInfo
 
     // create an ItineraryItem with default values
     let itinItem: ItineraryItemProps = {
-      id: -1,
-      index: containerItems.length,
+      firestoreId: "",
+      index: (isWishlistItem ? 0 : containerItems.length),
       itemName: location.displayName,
+      wishlistItem: isWishlistItem,
       itemDesc,
       destImg,
       location
     };
 
-    // TODO: add item to database to get ID and set itinItem.id to it
+    const activityPayload: Omit<ActivityDocument, "tripId" | "id"> = {
+      index: itinItem.index,
+      itemName: itinItem.itemName,
+      itemDesc: itinItem.itemDesc,
+      destImg: itinItem.destImg,
+      location: itinItem.location,
+      isWishlist: isWishlistItem,
+      day: isWishlistItem ? null : 
+        itineraryDays.findIndex((day) => getItineraryDayId(day.date) === containerId) ?? null,
+    };
+    let fid = await addActivity(tripId, activityPayload);
+    itinItem.firestoreId = fid;
 
     // add ItineraryItem it to container
     if (containerId == wishlistContainerId) {
       // insert at front, shift all existing items' indices right by 1
-      itinItem.index = 0;
       setWishlistItems((prev) => [
         itinItem,
         ...prev.map((item) => ({ ...item, index: item.index + 1 })),
       ]);
     } else {
-      // append to end (index is already containerItems.length)
+      // append to end
       setItineraryDays((prev) =>
         prev.map((day) =>
           getItineraryDayId(day.date) === containerId
@@ -222,29 +234,27 @@ export default function Trip({ tripInfo, wishlist, itinerary, tripId }: tripInfo
         ),
       );
     }
-
-    // TODO: add marker to map
   }
 
   /**
    * Deletes ItineraryItem from its container
    * @param id id of ItineraryItem
    */
-  function deleteItineraryItem(id: number) {
+  function deleteItineraryItem(id: string) {
     // find item firestoreId before removing from state
     const allItems = [
       ...wishlistItems,
       ...itineraryDays.flatMap((day) => day.items),
     ];
-    const item = allItems.find((item) => item.id === id);
+    const item = allItems.find((item) => item.firestoreId === id);
     const firestoreId = item?.firestoreId;
 
-    setWishlistItems((prev) => prev.filter((item) => item.id !== id));
+    setWishlistItems((prev) => prev.filter((item) => item.firestoreId !== id));
 
     setItineraryDays((prev) =>
       prev.map((day) => ({
         ...day,
-        items: day.items.filter((item) => item.id !== id),
+        items: day.items.filter((item) => item.firestoreId !== id),
       })),
     );
 
@@ -254,7 +264,6 @@ export default function Trip({ tripInfo, wishlist, itinerary, tripId }: tripInfo
         console.error("Failed to delete activity:", err),
       );
     }
-    // TODO: remove items marker from map
   }
 
   // AddItemModel code (popup to add new destination)
