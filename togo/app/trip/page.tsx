@@ -32,6 +32,7 @@ export default function TripPage({ tripIdFromParams }: TripPageProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // verify user is logged in and has access, then load page
   useEffect(() => {
     if (authLoading) {
       setLoading(true);
