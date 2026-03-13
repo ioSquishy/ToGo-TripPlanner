@@ -3,13 +3,8 @@
 import MapLocation from "@/types/MapLocation";
 import { useRef, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-
-interface FormValues {
-  location: MapLocation | null;
-  startDate: string | null;
-  endDate: string | null;
-  users: string[];
-}
+import { useAuth } from "@/context/AuthContext";
+import { getUserByEmail } from "@/lib/db";
 
 type PlaceAutocompleteSelectEvent = Event & {
   placePrediction?: google.maps.places.PlacePrediction;
@@ -20,11 +15,12 @@ interface FormValues {
   location: MapLocation | null;
   startDate: string | null;
   endDate: string | null;
-  users: string[];
+  users: string[]; // UIDs
 }
 
 export default function CreateTrip() {
   const router = useRouter();
+  const { user } = useAuth();
   const locationInputRef = useRef<google.maps.places.PlaceAutocompleteElement>(null);
 
   const [formValues, setFormValues] = useState<FormValues>({
@@ -32,8 +28,14 @@ export default function CreateTrip() {
     location: null,
     startDate: null,
     endDate: null,
-    users: [""],
+    users: [],
   });
+
+  // invite state
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [invitedEmails, setInvitedEmails] = useState<string[]>([]);
+  const [invitedUids, setInvitedUids] = useState<string[]>([]);
+  const [inviteError, setInviteError] = useState("");
 
   // updates form values w/ selected location
   useEffect(() => {
@@ -81,6 +83,41 @@ export default function CreateTrip() {
     }));
   };
 
+  async function handleInvite() {
+    setInviteError("");
+    const email = inviteEmail.trim().toLowerCase();
+
+    if (!email) return;
+
+    // check if already invited
+    if (invitedEmails.includes(email)) {
+      setInviteError("Already invited");
+      return;
+    }
+
+    // check if it's the creator's own email
+    if (user?.email?.toLowerCase() === email) {
+      setInviteError("You're already part of this trip");
+      return;
+    }
+
+    // look up the user in Firestore
+    const uid = await getUserByEmail(email);
+    if (!uid) {
+      setInviteError("User not found — they need to sign up first");
+      return;
+    }
+
+    setInvitedEmails((prev) => [...prev, email]);
+    setInvitedUids((prev) => [...prev, uid]);
+    setInviteEmail("");
+  }
+
+  function removeInvite(index: number) {
+    setInvitedEmails((prev) => prev.filter((_, i) => i !== index));
+    setInvitedUids((prev) => prev.filter((_, i) => i !== index));
+  }
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -89,12 +126,15 @@ export default function CreateTrip() {
       return;
     }
 
+    // build users array: creator + invited users
+    const allUsers = user ? [user.uid, ...invitedUids] : invitedUids;
+
     const res = await fetch("/api/trips", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(formValues),
+      body: JSON.stringify({ ...formValues, users: allUsers }),
     });
 
     if (!res.ok) {
@@ -103,7 +143,6 @@ export default function CreateTrip() {
     }
 
     const data = await res.json();
-
     router.push(`/trip/${data.tripId}`);
   }
 
@@ -153,6 +192,58 @@ export default function CreateTrip() {
               className="trip-form-input ml-1"
             ></input>
           </div>
+
+          {/* invite trip-mates */}
+          <div className="mt-2 text-left">
+            <label className="trip-form-label text-gray-400">
+              Invite Trip-Mates
+            </label>
+            <div className="flex gap-1 mt-1">
+              <input
+                type="email"
+                placeholder="Email address"
+                value={inviteEmail}
+                onChange={(e) => setInviteEmail(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleInvite();
+                  }
+                }}
+                className="trip-form-input w-full"
+              />
+              <button
+                type="button"
+                onClick={handleInvite}
+                className="text-sm px-3 py-1 bg-gray-200 rounded-md cursor-pointer hover:bg-gray-300"
+              >
+                Add
+              </button>
+            </div>
+            {inviteError && (
+              <p className="text-red-500 text-xs text-left mt-1">{inviteError}</p>
+            )}
+            {invitedEmails.length > 0 && (
+              <div className="flex flex-wrap gap-1 mt-2">
+                {invitedEmails.map((email, i) => (
+                  <span
+                    key={email}
+                    className="text-xs bg-gray-100 border border-gray-300 rounded-full px-3 py-1 flex items-center gap-1"
+                  >
+                    {email}
+                    <button
+                      type="button"
+                      onClick={() => removeInvite(i)}
+                      className="text-gray-400 hover:text-red-500 cursor-pointer"
+                    >
+                      x
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+
           <br/>
           <button className="trip-form-submit">Create Trip</button>
         </form>

@@ -80,6 +80,7 @@ body {
     cursor: pointer;
     background: white;
     color: black;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   }
   .header-btn:hover {
     background: #f3f4f6;

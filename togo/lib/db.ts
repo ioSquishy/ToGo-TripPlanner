@@ -59,6 +59,14 @@ export async function saveUser(uid: string, name: string, email: string, photoUR
   }, { merge: true });
 }
 
+/* Look up a user by their email. Returns their UID or null if not found. */
+export async function getUserByEmail(email: string): Promise<string | null> {
+  const q = query(collection(db, "users"), where("email", "==", email));
+  const snap = await getDocs(q);
+  if (snap.empty) return null;
+  return snap.docs[0].id; // doc ID is the user's UID
+}
+
 // ─── Trips ─────────────────
 
 /* Fetch a single trip by ID */
