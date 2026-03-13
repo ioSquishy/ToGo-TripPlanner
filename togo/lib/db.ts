@@ -63,9 +63,12 @@ export async function getTrip(tripId: string): Promise<TripDocument | null> {
   };
 }
 
-/* Fetch all trips belonging to a user */
+/* Fetch all trips that a user is part of (checks the users array on each trip) */
 export async function getUserTrips(userId: string): Promise<TripDocument[]> {
-  const q = query(collection(db, "trips"), where("userId", "==", userId));
+  const q = query(
+    collection(db, "trips"),
+    where("users", "array-contains", userId),
+  );
   const snap = await getDocs(q);
   return snap.docs.map((d) => {
     const data = d.data();
