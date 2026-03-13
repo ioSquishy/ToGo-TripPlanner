@@ -1,7 +1,5 @@
+import { redirect } from "next/navigation";
+
 export default function Home() {
-  return (
-    <div className="">
-      <div>Welcome to ToGo's first webpage!</div>
-    </div>
-  );
+  redirect("/create-trip");
 }
