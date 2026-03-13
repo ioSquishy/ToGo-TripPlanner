@@ -16,7 +16,7 @@ export default function TripCard(props: TripCardProps) {
         className="block h-full w-full object-cover"
       />
       <h5 className="absolute bottom-2 left-2 right-2 m-0 overflow-hidden text-ellipsis whitespace-nowrap rounded-lg bg-white/70 px-2.5 py-2 font-bold leading-tight text-gray-800 backdrop-blur-sm">
-        {props.tripName || `Fun Trip`}
+        {props.tripName || `Fun Trip!`}
       </h5>
     </a>
   );

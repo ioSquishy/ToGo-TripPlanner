@@ -78,7 +78,7 @@ export default function SelectTrip() {
             {
               trips?.map(trip => (
                 <div key={trip.id} className="w-60 h-40">
-                  <TripCard tripId={trip.id} tripName={trip.tripName} />
+                  <TripCard tripId={trip.id} tripName={trip.tripName} tripImgUrl={trip.locationImg} />
                 </div>
               ))
             }
