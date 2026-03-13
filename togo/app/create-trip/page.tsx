@@ -25,8 +25,7 @@ interface FormValues {
 
 export default function CreateTrip() {
   const router = useRouter();
-  const locationInputRef =
-    useRef<google.maps.places.PlaceAutocompleteElement>(null);
+  const locationInputRef = useRef<google.maps.places.PlaceAutocompleteElement>(null);
 
   const [formValues, setFormValues] = useState<FormValues>({
     tripName: null,
@@ -98,6 +97,11 @@ export default function CreateTrip() {
       body: JSON.stringify(formValues),
     });
 
+    if (!res.ok) {
+      alert(`${res.status}: ${res.statusText}`);
+      return;
+    }
+
     const data = await res.json();
 
     router.push(`/trip/${data.tripId}`);
@@ -149,9 +153,7 @@ export default function CreateTrip() {
               className="trip-form-input ml-1"
             ></input>
           </div>
-          <button className="text-gray-600 hover:text-blue-500 text-sm text-left mb-10">
-            + Invite Trip-Mates
-          </button>
+          <br/>
           <button className="trip-form-submit">Create Trip</button>
         </form>
       </div>
