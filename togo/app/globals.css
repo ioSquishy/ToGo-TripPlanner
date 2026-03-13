@@ -92,6 +92,19 @@ body {
   .header-btn-dark:hover {
     background: #333;
   }
+  .dates-btn {
+    background: #e5e7eb;
+    width: fit-content;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin: 12px 0;
+    display: flex;
+    gap: 8px;
+    cursor: pointer;
+  }
+  .dates-btn:hover {
+    background: #d1d5db;
+  }
   .trip-form-submit {
     background-color: #839f5d;
     color: #fff;

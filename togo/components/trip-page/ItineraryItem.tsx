@@ -38,6 +38,10 @@ export default function ItineraryItem(props: ItineraryItemProps) {
       setExtraDetails(prev => ({ ...prev, retrievedAlready: true }));
       getExtraDetails();
     }
+    // collapsing — cancel any note editing and revert changes
+    if (isExpanded && isEditingNote) {
+      cancelNoteChanges();
+    }
     setIsExpanded((prev) => !prev);
   }
 
@@ -155,9 +159,9 @@ export default function ItineraryItem(props: ItineraryItemProps) {
                     ref={noteRef}
                     readOnly={!isEditingNote}
                     onClick={editNote}
-                    className={`self-center bg-gray-100 px-3 py-1 rounded-lg field-sizing-content resize-none text-md/5 ${isEditingNote ? "w-full" : "truncate"}`}
+                    className="self-center bg-gray-100 px-3 py-1 rounded-lg field-sizing-content resize-none text-md/5 w-full"
                     defaultValue={originalNote}
-                    placeholder={"Click me to add a note!"}
+                    placeholder="Click to Add Note"
                   />
                   <button
                     hidden={!isEditingNote}

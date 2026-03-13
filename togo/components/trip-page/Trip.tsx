@@ -14,11 +14,14 @@ import MapLocation from "@/types/MapLocation";
 import Modal from "./Modal";
 import AddItem, { AddItemFormSubmitData } from "./AddItem";
 import EditTripName from "./EditTripName";
+import EditDates from "./EditDates";
 import {
   ActivityDocument,
   addActivity,
   deleteActivity,
   moveActivity,
+  updateTripDates,
+  daysBetween,
 } from "@/lib/db";
 
 const wishlistContainerId = "wishlistContainer";
@@ -42,8 +45,11 @@ export default function Trip({
   const [wishlistItems, setWishlistItems] = useState<ItineraryItemProps[]>(wishlist);
   const [itineraryDays, setItineraryDays] = useState<ItineraryDayProps[]>(itinerary);
 
-  // Modal for editing trip
+  // Modal states
   const [titleModalHidden, setTitleModalHidden] = useState(true);
+  const [datesModalHidden, setDatesModalHidden] = useState(true);
+  const [tripStartDate, setTripStartDate] = useState<Date>(tripInfo.startDate);
+  const [tripEndDate, setTripEndDate] = useState<Date>(tripInfo.endDate);
 
   // AddItemModel code (popup to add new destination)
   const [addItemModalHidden, setAddItemModalHidden] = useState(true);
@@ -344,10 +350,62 @@ export default function Trip({
       body: JSON.stringify({ id: tripId, tripName: newTripName }),
     });
 
-    const data = await res.json();
     setTripName(newTripName);
     const form = event.target as HTMLFormElement;
     form.reset();
+  }
+
+  // get the day shift and total days for a proposed date change
+  function getDateShift(newStart: Date) {
+    const oldMs = new Date(tripStartDate).setUTCHours(0, 0, 0, 0);
+    const newMs = new Date(newStart).setUTCHours(0, 0, 0, 0);
+    return Math.round((oldMs - newMs) / (1000 * 60 * 60 * 24));
+  }
+
+  // count activities that would be moved to wishlist
+  function getAffectedCount(newStart: Date, newEnd: Date): number {
+    const shift = getDateShift(newStart);
+    const total = daysBetween(newStart, newEnd);
+
+    let count = 0;
+    for (const day of itineraryDays) {
+      const shifted = day.dayIndex + shift;
+      if (shifted < 0 || shifted >= total) count += day.items.length;
+    }
+    return count;
+  }
+
+  async function handleDatesChange(newStart: Date, newEnd: Date) {
+    await updateTripDates(tripId, tripStartDate, newStart, newEnd);
+
+    const shift = getDateShift(newStart);
+    const total = daysBetween(newStart, newEnd);
+
+    // build new empty days
+    const orphaned: ItineraryItemProps[] = [];
+    const newDays: ItineraryDayProps[] = Array.from({ length: total }, (_, i) => {
+      const date = new Date(newStart);
+      date.setDate(date.getDate() + i);
+      return { date, dayIndex: i, items: [] };
+    });
+
+    // slot existing activities into new days or orphan them
+    for (const day of itineraryDays) {
+      const shifted = day.dayIndex + shift;
+      for (const item of day.items) {
+        if (shifted < 0 || shifted >= total) {
+          orphaned.push({ ...item, wishlistItem: true });
+        } else {
+          newDays[shifted].items.push(item);
+        }
+      }
+    }
+
+    setItineraryDays(newDays);
+    setWishlistItems((prev) => [...prev, ...orphaned]);
+    setTripStartDate(newStart);
+    setTripEndDate(newEnd);
+    closeModal(setDatesModalHidden);
   }
 
   return (
@@ -363,14 +421,17 @@ export default function Trip({
               {/* trip name and dates */}
               <div>
                 <h1 id="tripName">{tripName}</h1>
-                <div className="bg-gray-200 w-fit px-3 py-2 rounded-md my-3 flex gap-2">
+                <button
+                  onClick={() => setDatesModalHidden(false)}
+                  className="dates-btn"
+                >
                   <img src="/calendar_icon.svg" alt="Calendar icon"></img>
                   <p id="tripDates" className="font-bold">
-                    {tripInfo.startDate.toLocaleDateString()}{" "}
+                    {tripStartDate.toLocaleDateString("en-US")}{" "}
                     -{" "}
-                    {tripInfo.endDate.toLocaleDateString()}
+                    {tripEndDate.toLocaleDateString("en-US")}
                   </p>
-                </div>
+                </button>
               </div>
               {/* edit trip button */}
               <div className="ml-auto mt-3 position-static">
@@ -462,6 +523,18 @@ export default function Trip({
             closeModal(setTitleModalHidden);
           }}
         ></EditTripName>
+      </Modal>
+
+      <Modal
+        hidden={datesModalHidden}
+        onClose={() => closeModal(setDatesModalHidden)}
+      >
+        <EditDates
+          startDate={tripStartDate}
+          endDate={tripEndDate}
+          onSave={handleDatesChange}
+          affectedCount={getAffectedCount(tripStartDate, tripEndDate)}
+        />
       </Modal>
     </>
   );

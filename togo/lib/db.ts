@@ -10,6 +10,7 @@ import {
   query,
   where,
   orderBy,
+  writeBatch,
 } from "firebase/firestore";
 import { db } from "./firebase";
 import { ItineraryItemProps } from "@/components/trip-page/ItineraryItem";
@@ -41,7 +42,7 @@ export interface ActivityDocument {
 }
 
 /* Returns the number of days between two dates (inclusive) */
-function daysBetween(start: Date, end: Date): number {
+export function daysBetween(start: Date, end: Date): number {
   const startMs = new Date(start).setUTCHours(0, 0, 0, 0);
   const endMs = new Date(end).setUTCHours(0, 0, 0, 0);
   return Math.round((endMs - startMs) / (1000 * 60 * 60 * 24)) + 1;
@@ -122,6 +123,49 @@ export async function createTrip(
   return ref.id;
 }
 
+/* Update a trip's dates. Handles shifting activity day indexes and
+   moving orphaned activities (on days that no longer exist) to the wishlist. */
+export async function updateTripDates(
+  tripId: string,
+  oldStart: Date,
+  newStart: Date,
+  newEnd: Date,
+): Promise<void> {
+  const oldStartMs = new Date(oldStart).setUTCHours(0, 0, 0, 0);
+  const newStartMs = new Date(newStart).setUTCHours(0, 0, 0, 0);
+  const dayShift = Math.round((oldStartMs - newStartMs) / (1000 * 60 * 60 * 24));
+  const newTotalDays = daysBetween(newStart, newEnd);
+
+  // update trip document
+  await updateDoc(doc(db, "trips", tripId), { startDate: newStart, endDate: newEnd });
+
+  // fetch all non-wishlist activities
+  const q = query(
+    collection(db, "trips", tripId, "activities"),
+    where("isWishlist", "==", false),
+  );
+  const snap = await getDocs(q);
+  if (snap.empty) return;
+
+  const batch = writeBatch(db);
+
+  snap.docs.forEach((d) => {
+    const data = d.data();
+    if (data.day === null) return;
+
+    const newDay = data.day + dayShift;
+
+    // if the new day is out of range, move to wishlist
+    if (newDay < 0 || newDay >= newTotalDays) {
+      batch.update(d.ref, { day: null, isWishlist: true });
+    } else if (dayShift !== 0) {
+      batch.update(d.ref, { day: newDay });
+    }
+  });
+
+  await batch.commit();
+}
+
 // ─── Activities ─────────────
 
 /* Fetch all activities for a trip & return them in either itinerary or wishlist.
@@ -184,7 +228,7 @@ export async function getTripActivities(
     { length: totalDays },
     (_, dayIndex) => {
       const date = new Date(startDate);
-      date.setUTCDate(date.getUTCDate() + dayIndex);
+      date.setDate(date.getDate() + dayIndex);
       return { date, dayIndex, items: dayMap.get(dayIndex) || [] };
     },
   );
