@@ -10,8 +10,8 @@ APIs used are as follows:
 - Google Identity OAuth 2.0
 
 Notable libraries used:
-@vis.gl/react-google-maps - Google Maps API React Library
-@hello-pangea/dnd - Drag and drop functionality
+- @vis.gl/react-google-maps - Google Maps API React Library
+- @hello-pangea/dnd - Drag and drop functionality
 
 # Running the Project
 To run the project, first create a *.env* file with API keys for the APIs mentioned above and Firestore using the following API key names:
