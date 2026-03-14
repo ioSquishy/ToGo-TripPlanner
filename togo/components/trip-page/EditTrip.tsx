@@ -1,3 +1,7 @@
+"use client"
+
+import { deleteTrip } from "@/lib/db";
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
 export interface EditTripUpdates {
@@ -7,6 +11,7 @@ export interface EditTripUpdates {
 }
 
 interface EditTripProps {
+	tripId: string;
 	tripName: string;
 	startDate: Date;
 	endDate: Date;
@@ -19,12 +24,14 @@ function toDateString(date: Date): string {
 }
 
 export default function EditTrip({
+	tripId,
 	tripName,
 	startDate,
 	endDate,
 	getAffectedCount,
 	onSave,
 }: EditTripProps) {
+	const router = useRouter();
 	const [newTripName, setNewTripName] = useState(tripName);
 	const [newStart, setNewStart] = useState(toDateString(startDate));
 	const [newEnd, setNewEnd] = useState(toDateString(endDate));
@@ -85,6 +92,19 @@ export default function EditTrip({
 		await onSave(updates);
 	}
 
+	async function handleDeleteTrip() {
+		let confirmed = confirm("Are you sure you want to delete this trip? (This change is permanent!)");
+		if (confirmed === false) return;
+
+		try {
+			await deleteTrip(tripId);
+			router.push("/select-trip");
+		} catch (err) {
+			console.error(`Failed to delete trip: ${err}`);
+			setError("Failed to delete trip. Please try again.");
+		}
+	}
+
 	return (
 		<div>
 			<h3 className="mb-2 text-center">Edit Trip</h3>
@@ -137,6 +157,12 @@ export default function EditTrip({
 					</button>
 				</div>
 			</form>
+
+			<div className="flex justify-center">
+				<button className="trip-form-submit bg-red-500" onClick={handleDeleteTrip}>
+					Delete Trip
+				</button>
+			</div>
 		</div>
 	);
 }

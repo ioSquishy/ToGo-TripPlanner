@@ -199,6 +199,31 @@ export async function updateTripDates(
   }
 }
 
+/* Deletes a trip and all associated activities with it. */
+export async function deleteTrip(
+  tripId: string
+): Promise<void> {
+  try {
+    const activitiesRef = collection(db, "trips", tripId, "activities");
+    const activitiesSnap = await getDocs(activitiesRef);
+
+    // Firestore batches support up to 500 operations.
+    const activityDocs = activitiesSnap.docs;
+    for (let i = 0; i < activityDocs.length; i += 500) {
+      const batch = writeBatch(db);
+      activityDocs.slice(i, i + 500).forEach((activityDoc) => {
+        batch.delete(activityDoc.ref);
+      });
+      await batch.commit();
+    }
+
+    await deleteDoc(doc(db, "trips", tripId));
+  } catch (error) {
+    console.error("Failed to delete trip:", error);
+    throw error;
+  }
+}
+
 // ─── Activities ─────────────
 
 /* Fetch all activities for a trip & return them in either itinerary or wishlist.

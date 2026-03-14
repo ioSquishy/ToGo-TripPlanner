@@ -554,6 +554,7 @@ export default function Trip({
         onClose={() => closeModal(setEditTripModalHidden)}
       >
         <EditTrip
+          tripId={tripId}
           tripName={tripName}
           startDate={tripStartDate}
           endDate={tripEndDate}
