@@ -26,6 +26,7 @@ export interface TripDocument {
   startDate: Date;
   endDate: Date;
   location: MapLocation;
+  locationImg?: string;
 }
 
 export interface ActivityDocument {
@@ -82,6 +83,7 @@ export async function getTrip(tripId: string): Promise<TripDocument | null> {
     startDate: data.startDate.toDate(),
     endDate: data.endDate.toDate(),
     location: data.location,
+    locationImg: data.locationImg
   };
 }
 
@@ -101,6 +103,7 @@ export async function getUserTrips(userId: string): Promise<TripDocument[]> {
       startDate: data.startDate.toDate(),
       endDate: data.endDate.toDate(),
       location: data.location,
+      locationImg: data.locationImg
     };
   });
 }

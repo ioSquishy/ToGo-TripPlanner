@@ -146,12 +146,28 @@ export default function CreateTrip() {
     // build users array: creator + invited users
     const allUsers = [activeUser.uid, ...invitedUids];
 
+    // get location img
+    let destImg: string | undefined;
+    try {
+      const place = new google.maps.places.Place({ id: formValues.location.locationId });
+      await place.fetchFields({ fields: ["photos"] });
+      if (place.photos && place.photos.length > 0) {
+        destImg = place.photos[0].getURI({ maxWidth: 400 });
+      }
+    } catch (err) {
+      console.error("Failed to fetch place details:", err);
+    }
+
     const res = await fetch("/api/trips", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ ...formValues, users: allUsers }),
+      body: JSON.stringify({
+        ...formValues,
+        users: allUsers,
+        locationImg: destImg
+      }),
     });
 
     if (!res.ok) {
