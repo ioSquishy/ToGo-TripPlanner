@@ -7,16 +7,30 @@ import {
   updateDoc,
   doc,
 } from "firebase/firestore";
+import { daysBetween } from "@/lib/db";
 const TRIPS_COLLECTION = "trips";
 
 export async function POST(req: NextRequest) {
   try {
     const formValues = await req.json();
 
-    // TODO: add value validation
+    if (!formValues) {
+      console.error("No form values provided", formValues);
+      return NextResponse.json(
+        { error: "Invalid request payload" },
+        { status: 400 },
+      );
+    }
 
     // parse request body
     const { tripName, location, startDate, endDate, users, locationImg } = formValues;
+
+    if (daysBetween(startDate, endDate) <= 0) {
+      return NextResponse.json(
+        { error: "End date must be after start date" },
+        { status: 400 },
+      );
+    }
 
     const docRef = await addDoc(collection(db, TRIPS_COLLECTION), {
       tripName,
@@ -37,6 +51,7 @@ export async function POST(req: NextRequest) {
       { status: 201 },
     );
   } catch (error) {
+    console.error("Failed to create trip:", error);
     return NextResponse.json(
       { error: "Failed to create post" },
       { status: 500 },
@@ -46,7 +61,6 @@ export async function POST(req: NextRequest) {
 
 export async function PATCH(req: NextRequest) {
   try {
-    console.log("in patch");
     const formValues = await req.json();
     const { id, tripName } = formValues;
 
@@ -60,6 +74,7 @@ export async function PATCH(req: NextRequest) {
       { status: 201 },
     );
   } catch (error) {
+    console.error("Failed to update trip:", error);
     return NextResponse.json(
       { error: "Failed to create patch" },
       { status: 500 },

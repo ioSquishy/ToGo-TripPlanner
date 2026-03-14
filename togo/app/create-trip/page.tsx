@@ -4,7 +4,7 @@ import MapLocation from "@/types/MapLocation";
 import { useRef, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { getUserByEmail } from "@/lib/db";
+import { daysBetween } from "@/lib/db";
 import { auth } from "@/lib/firebase";
 import Header from "@/components/Header";
 
@@ -15,8 +15,8 @@ type PlaceAutocompleteSelectEvent = Event & {
 interface FormValues {
   tripName: string | null;
   location: MapLocation | null;
-  startDate: string | null;
-  endDate: string | null;
+  startDate: Date | null;
+  endDate: Date | null;
 }
 
 export default function CreateTrip() {
@@ -24,6 +24,7 @@ export default function CreateTrip() {
   const { user, loading, signInWithGoogle } = useAuth();
   const locationInputRef = useRef<google.maps.places.PlaceAutocompleteElement>(null);
   const previousUserRef = useRef(user); // tracks login state
+  const [formErrorMsg, setFormErrMsg] = useState<string | null>(null);
 
   const [formValues, setFormValues] = useState<FormValues>({
     tripName: null,
@@ -31,12 +32,6 @@ export default function CreateTrip() {
     startDate: null,
     endDate: null,
   });
-
-  // invite state
-  const [inviteEmail, setInviteEmail] = useState("");
-  const [invitedEmails, setInvitedEmails] = useState<string[]>([]);
-  const [invitedUids, setInvitedUids] = useState<string[]>([]);
-  const [inviteError, setInviteError] = useState("");
 
   // updates form values w/ selected location
   useEffect(() => {
@@ -50,24 +45,28 @@ export default function CreateTrip() {
       const prediction = event.placePrediction;
       if (!prediction) return;
 
-      const place = prediction.toPlace();
-      await place.fetchFields({
-        fields: ["id", "displayName", "formattedAddress", "location"],
-      });
+      try {
+        const place = prediction.toPlace();
+        await place.fetchFields({
+          fields: ["id", "displayName", "formattedAddress", "location"],
+        });
 
-      if (place) {
-        setFormValues((prev) => ({
-          ...prev,
-          location: {
-            locationId: place.id,
-            displayName: place.displayName ?? "Unknown",
-            formattedAddress: place.formattedAddress ?? "",
-            locationLat: place.location?.lat() ?? 0,
-            locationLon: place.location?.lng() ?? 0,
-          },
-        }));
-      } else {
-        console.error("Failed to fetch Place");
+        if (place) {
+          setFormValues((prev) => ({
+            ...prev,
+            location: {
+              locationId: place.id,
+              displayName: place.displayName ?? "Unknown",
+              formattedAddress: place.formattedAddress ?? "",
+              locationLat: place.location?.lat() ?? 0,
+              locationLon: place.location?.lng() ?? 0,
+            },
+          }));
+        } else {
+          console.error("Failed to fetch Place");
+        }
+      } catch (err) {
+        console.error("Failed to process selected destination:", err);
       }
     }
 
@@ -96,47 +95,13 @@ export default function CreateTrip() {
 
   // updates remaining form values
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormErrMsg(null)
     const { name, value } = e.target;
     setFormValues((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
-
-  async function handleInvite() {
-    setInviteError("");
-    const email = inviteEmail.trim().toLowerCase();
-
-    if (!email) return;
-
-    // check if already invited
-    if (invitedEmails.includes(email)) {
-      setInviteError("Already invited");
-      return;
-    }
-
-    // check if it's the creator's own email
-    if (user?.email?.toLowerCase() === email) {
-      setInviteError("You're already part of this trip");
-      return;
-    }
-
-    // look up the user in Firestore
-    const uid = await getUserByEmail(email);
-    if (!uid) {
-      setInviteError("User not found — they need to sign up first");
-      return;
-    }
-
-    setInvitedEmails((prev) => [...prev, email]);
-    setInvitedUids((prev) => [...prev, uid]);
-    setInviteEmail("");
-  }
-
-  function removeInvite(index: number) {
-    setInvitedEmails((prev) => prev.filter((_, i) => i !== index));
-    setInvitedUids((prev) => prev.filter((_, i) => i !== index));
-  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -149,23 +114,33 @@ export default function CreateTrip() {
         await signInWithGoogle();
         activeUser = auth.currentUser;
       } catch {
-        alert("Sign-in is required to create a trip.");
+        setFormErrMsg(`Must be signed in to create a trip.`);
         return;
       }
     }
 
     if (activeUser === null) {
-      alert("Sign-in is required to create a trip.");
+      setFormErrMsg(`Must be signed in to create a trip.`);
+      return;
+    }
+
+    if (!formValues.startDate || !formValues.endDate) {
+      setFormErrMsg(`Both start and end dates are required.`);
+      return;
+    }
+
+    if (daysBetween(formValues.startDate, formValues.endDate) <= 0) {
+      setFormErrMsg(`Start date must be before end date.`);
       return;
     }
 
     if (!formValues.location) {
-      console.warn("No place selected yet");
+      setFormErrMsg(`No place Destination yet.`);
       return;
     }
 
     // build users array: creator + invited users
-    const allUsers = [activeUser.uid, ...invitedUids];
+    const allUsers = [activeUser.uid];
 
     // get location img
     let destImg: string | undefined;
@@ -177,27 +152,41 @@ export default function CreateTrip() {
       }
     } catch (err) {
       console.error("Failed to fetch place details:", err);
+      setFormErrMsg(`Failed to create trip. Please try again.`);
     }
 
-    const res = await fetch("/api/trips", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        ...formValues,
-        users: allUsers,
-        locationImg: destImg
-      }),
-    });
+    try {
+      const res = await fetch("/api/trips", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...formValues,
+          tripName: formValues.tripName || `Trip to ${formValues.location.displayName}`,
+          users: allUsers,
+          locationImg: destImg
+        }),
+      });
 
-    if (!res.ok) {
-      alert(`${res.status}: ${res.statusText}`);
-      return;
+      if (!res.ok) {
+        console.error("Trip creation failed:", res.status, res.statusText);
+        setFormErrMsg(`${res.status}: ${res.statusText}`);
+        return;
+      }
+
+      const data = await res.json();
+      if (!data?.tripId) {
+        console.error("Trip creation response missing tripId", data);
+        setFormErrMsg(`Failed to create trip. Please try again.`);
+        return;
+      }
+
+      router.push(`/trip/${data.tripId}`);
+    } catch (err) {
+      console.error("Failed to create trip:", err);
+      setFormErrMsg(`Failed to create trip. Please try again.`);
     }
-
-    const data = await res.json();
-    router.push(`/trip/${data.tripId}`);
   }
 
   return (
@@ -249,59 +238,9 @@ export default function CreateTrip() {
               ></input>
             </div>
 
-            {/* invite trip-mates */}
-            <div className="mt-2 text-left">
-              <label className="trip-form-label text-gray-400">
-                Invite Trip-Mates
-              </label>
-              <div className="flex gap-1 mt-1">
-                <input
-                  type="email"
-                  placeholder="Email address"
-                  value={inviteEmail}
-                  onChange={(e) => setInviteEmail(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      handleInvite();
-                    }
-                  }}
-                  className="trip-form-input w-full"
-                />
-                <button
-                  type="button"
-                  onClick={handleInvite}
-                  className="text-sm px-3 py-1 bg-gray-200 rounded-md cursor-pointer hover:bg-gray-300"
-                >
-                  Add
-                </button>
-              </div>
-              {inviteError && (
-                <p className="text-red-500 text-xs text-left mt-1">{inviteError}</p>
-              )}
-              {invitedEmails.length > 0 && (
-                <div className="flex flex-wrap gap-1 mt-2">
-                  {invitedEmails.map((email, i) => (
-                    <span
-                      key={email}
-                      className="text-xs bg-gray-100 border border-gray-300 rounded-full px-3 py-1 flex items-center gap-1"
-                    >
-                      {email}
-                      <button
-                        type="button"
-                        onClick={() => removeInvite(i)}
-                        className="text-gray-400 hover:text-red-500 cursor-pointer"
-                      >
-                        x
-                      </button>
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
+            <p className="text-red-600 text-left">{formErrorMsg}</p>
 
-            <br/>
-            <button className="trip-form-submit">Create Trip</button>
+            <button className="trip-form-submit mt-5">Create Trip</button>
           </form>
         </div>
       </div>

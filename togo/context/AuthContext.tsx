@@ -32,13 +32,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   async function signInWithGoogle() {
-    const result = await signInWithPopup(auth, googleProvider);
-    const u = result.user;
-    await saveUser(u.uid, u.displayName ?? "", u.email ?? "", u.photoURL ?? "");
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const u = result.user;
+      await saveUser(u.uid, u.displayName ?? "", u.email ?? "", u.photoURL ?? "");
+    } catch (error) {
+      // warn because they could've just closed the modal
+      console.warn("Google sign-in failed:", error);
+      return;
+    }
   }
 
   async function logout() {
-    await signOut(auth);
+    try {
+      await signOut(auth);
+    } catch (err) {
+      console.error("Failed to log out.");
+      alert("Failed to log out.");
+    }
   }
 
   return (
