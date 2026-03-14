@@ -15,18 +15,18 @@ Notable libraries used:
 
 # Running the Project
 To run the project, first create a *.env* file with API keys for the APIs mentioned above and Firestore using the following API key names:
-NEXT_PUBLIC_GOOGLE_MAPS_KEY
-NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID
-NEXT_PUBLIC_FIREBASE_API_KEY
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
-NEXT_PUBLIC_FIREBASE_PROJECT_ID
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
-NEXT_PUBLIC_FIREBASE_APP_ID
+- NEXT_PUBLIC_GOOGLE_MAPS_KEY
+- NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID
+- NEXT_PUBLIC_FIREBASE_API_KEY
+- NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+- NEXT_PUBLIC_FIREBASE_PROJECT_ID
+- NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+- NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+- NEXT_PUBLIC_FIREBASE_APP_ID
 
 It is also necessary to create a Google Map ID: https://developers.google.com/maps/documentation/javascript/map-ids/get-map-id.
 
 # Acknowledgements
-Arthur Van Der Harst: Front-end developer
-Phohanh Tran: Front-end developer
-Yousuf Al-Bassyiouni: Back-end developer
+- Arthur Van Der Harst: Front-end developer
+- Phohanh Tran: Front-end developer
+- Yousuf Al-Bassyiouni: Back-end developer
