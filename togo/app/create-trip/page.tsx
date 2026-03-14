@@ -193,49 +193,56 @@ export default function CreateTrip() {
     <>
       <Header />
       <div className="flex items-center justify-center h-full mt-23">
-        <div className="flex-col items-center text-center bg-white rounded-lg shadow-black/75 shadow-lg p-4 pb-15">
-          <h2>Create a Trip</h2>
-          <br></br>
-          <form className="flex flex-col gap-2 w-80" onSubmit={handleSubmit}>
-            <label htmlFor="name" className="trip-form-label">
-              Trip Name
-            </label>
-            <input
-              type="text"
-              name="tripName"
-              id="tripName"
-              placeholder="ie 'New Year's Trip'"
-              onChange={handleChange}
-              className="trip-form-input mr-1 w-full"
-            ></input>
-            <label htmlFor="location">Destination</label>
-            <gmp-place-autocomplete
-              id="location"
-              ref={locationInputRef}
-              name="location"
-              {...({ placeholder: "E.g. New York" } as any)}
-              className="border border-gray-400 rounded-md"
-            ></gmp-place-autocomplete>
-            <label htmlFor="dates" className="trip-form-label">
-              Dates
-            </label>
-            <div id="dates" className="flex">
+        <div className="flex-col items-center bg-white rounded-lg shadow-black/75 shadow-lg p-4 pb-15">
+          <h2 className="text-center">Create a Trip</h2>
+          <form className="flex flex-col gap-3 w-80 mt-7 create-trip-form" onSubmit={handleSubmit}>
+            <div>
+              <label htmlFor="tripName" className="trip-form-label">
+                Trip Name
+              </label>
               <input
-                type="date"
-                name="startDate"
-                id="startDate"
-                placeholder="Start Date"
+                type="text"
+                name="tripName"
+                id="tripName"
+                placeholder="ie 'New Year's Trip'"
                 onChange={handleChange}
-                className="trip-form-input mr-1"
+                className="trip-form-input mr-1 w-full"
               ></input>
-              <input
-                type="date"
-                name="endDate"
-                id="endDate"
-                placeholder="End"
-                onChange={handleChange}
-                className="trip-form-input ml-1"
-              ></input>
+            </div>
+
+            <div>
+              <label>Destination</label>
+              <gmp-place-autocomplete
+                id="location"
+                ref={locationInputRef}
+                name="location"
+                aria-label="Destination"
+                {...({ placeholder: "E.g. New York" } as any)}
+                className="border border-gray-400 rounded-md"
+              ></gmp-place-autocomplete>
+            </div>
+
+            <div id="dates" className="flex gap-2">
+              <div className="flex flex-col flex-1">
+                <label htmlFor="startDate" className="trip-form-label">Start Date</label>
+                <input
+                  type="date"
+                  name="startDate"
+                  id="startDate"
+                  onChange={handleChange}
+                  className="trip-form-input w-full"
+                ></input>
+              </div>
+              <div className="flex flex-col flex-1">
+                <label htmlFor="endDate" className="trip-form-label">End Date</label>
+                <input
+                  type="date"
+                  name="endDate"
+                  id="endDate"
+                  onChange={handleChange}
+                  className="trip-form-input w-full"
+                ></input>
+              </div>
             </div>
 
             <p className="text-red-600 text-left">{formErrorMsg}</p>

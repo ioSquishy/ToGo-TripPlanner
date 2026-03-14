@@ -90,11 +90,12 @@ export default function AddItem(props: AddItemProps) {
     <div>
       <h3 className="mb-2 text-center">Add Destination</h3>
       <form onSubmit={handleSubmit}>
-        <label htmlFor="destination">Destination</label>
+        <label>Destination</label>
         <gmp-place-autocomplete
           id="destination"
           ref={destinationInputRef}
           name="destination"
+          aria-label="destination"
           {...({
             placeholder: "E.g. New York",
             locationBias: {
