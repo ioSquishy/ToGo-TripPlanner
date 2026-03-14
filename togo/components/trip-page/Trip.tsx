@@ -22,6 +22,7 @@ import {
   updateTripDates,
   daysBetween,
 } from "@/lib/db";
+import Header from "../Header";
 
 const wishlistContainerId = "wishlistContainer";
 const tripDateFormatter = new Intl.DateTimeFormat(undefined, {
@@ -416,8 +417,10 @@ export default function Trip({
         <div className="flex w-full h-screen">
           <div
             id="dashboardContainer"
-            className="w-4/10 min-w-1/4 overflow-auto bg-gray-300 no-scrollbar pt-16"
+            className="w-4/10 min-w-1/4 overflow-auto bg-gray-300 no-scrollbar"
           >
+            <Header />
+            
             {/* trip name card container */}
             <div className="w-8/10 mx-auto my-8 bg-gray-50 rounded-lg p-3 drop-shadow-lg/60 flex">
               {/* trip name and dates */}

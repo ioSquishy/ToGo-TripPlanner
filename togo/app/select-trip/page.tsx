@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { getUserTrips, TripDocument } from "@/lib/db";
 import { useRouter } from "next/navigation";
 import TripCard from "@/components/select-trip-page/TripCard";
+import Header from "@/components/Header";
 
 export default function SelectTrip() {
   const { user, loading: authLoading } = useAuth();
@@ -68,7 +69,8 @@ export default function SelectTrip() {
 
   return (
     <>
-      <div className="m-20 h-full w-6/10 mx-auto flex flex-col items-center">
+      <Header />
+      <div className="m-15 h-full w-6/10 mx-auto flex flex-col items-center">
         <div className="w-full">
           <div className="flex items-center justify-between w-full">
             <h1>Your Trips</h1>

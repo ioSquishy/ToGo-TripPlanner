@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { getUserByEmail } from "@/lib/db";
 import { auth } from "@/lib/firebase";
+import Header from "@/components/Header";
 
 type PlaceAutocompleteSelectEvent = Event & {
   placePrediction?: google.maps.places.PlacePrediction;
@@ -180,107 +181,110 @@ export default function CreateTrip() {
   }
 
   return (
-    <div className="flex items-center justify-center h-screen">
-      <div className="flex-col items-center text-center bg-white rounded-lg shadow-black/75 shadow-lg p-4 pb-15">
-        <h2>Create a Trip</h2>
-        <br></br>
-        <form className="flex flex-col gap-2 w-80" onSubmit={handleSubmit}>
-          <label htmlFor="name" className="trip-form-label">
-            Trip Name
-          </label>
-          <input
-            type="text"
-            name="tripName"
-            id="tripName"
-            placeholder="ie 'New Year's Trip'"
-            onChange={handleChange}
-            className="trip-form-input mr-1 w-full"
-          ></input>
-          <label htmlFor="location">Destination</label>
-          <gmp-place-autocomplete
-            id="location"
-            ref={locationInputRef}
-            name="location"
-            {...({ placeholder: "E.g. New York" } as any)}
-            className="border border-gray-400 rounded-md"
-          ></gmp-place-autocomplete>
-          <label htmlFor="dates" className="trip-form-label">
-            Dates
-          </label>
-          <div id="dates" className="flex">
-            <input
-              type="date"
-              name="startDate"
-              id="startDate"
-              placeholder="Start Date"
-              onChange={handleChange}
-              className="trip-form-input mr-1"
-            ></input>
-            <input
-              type="date"
-              name="endDate"
-              id="endDate"
-              placeholder="End"
-              onChange={handleChange}
-              className="trip-form-input ml-1"
-            ></input>
-          </div>
-
-          {/* invite trip-mates */}
-          <div className="mt-2 text-left">
-            <label className="trip-form-label text-gray-400">
-              Invite Trip-Mates
+    <>
+      <Header />
+      <div className="flex items-center justify-center h-full mt-23">
+        <div className="flex-col items-center text-center bg-white rounded-lg shadow-black/75 shadow-lg p-4 pb-15">
+          <h2>Create a Trip</h2>
+          <br></br>
+          <form className="flex flex-col gap-2 w-80" onSubmit={handleSubmit}>
+            <label htmlFor="name" className="trip-form-label">
+              Trip Name
             </label>
-            <div className="flex gap-1 mt-1">
+            <input
+              type="text"
+              name="tripName"
+              id="tripName"
+              placeholder="ie 'New Year's Trip'"
+              onChange={handleChange}
+              className="trip-form-input mr-1 w-full"
+            ></input>
+            <label htmlFor="location">Destination</label>
+            <gmp-place-autocomplete
+              id="location"
+              ref={locationInputRef}
+              name="location"
+              {...({ placeholder: "E.g. New York" } as any)}
+              className="border border-gray-400 rounded-md"
+            ></gmp-place-autocomplete>
+            <label htmlFor="dates" className="trip-form-label">
+              Dates
+            </label>
+            <div id="dates" className="flex">
               <input
-                type="email"
-                placeholder="Email address"
-                value={inviteEmail}
-                onChange={(e) => setInviteEmail(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    handleInvite();
-                  }
-                }}
-                className="trip-form-input w-full"
-              />
-              <button
-                type="button"
-                onClick={handleInvite}
-                className="text-sm px-3 py-1 bg-gray-200 rounded-md cursor-pointer hover:bg-gray-300"
-              >
-                Add
-              </button>
+                type="date"
+                name="startDate"
+                id="startDate"
+                placeholder="Start Date"
+                onChange={handleChange}
+                className="trip-form-input mr-1"
+              ></input>
+              <input
+                type="date"
+                name="endDate"
+                id="endDate"
+                placeholder="End"
+                onChange={handleChange}
+                className="trip-form-input ml-1"
+              ></input>
             </div>
-            {inviteError && (
-              <p className="text-red-500 text-xs text-left mt-1">{inviteError}</p>
-            )}
-            {invitedEmails.length > 0 && (
-              <div className="flex flex-wrap gap-1 mt-2">
-                {invitedEmails.map((email, i) => (
-                  <span
-                    key={email}
-                    className="text-xs bg-gray-100 border border-gray-300 rounded-full px-3 py-1 flex items-center gap-1"
-                  >
-                    {email}
-                    <button
-                      type="button"
-                      onClick={() => removeInvite(i)}
-                      className="text-gray-400 hover:text-red-500 cursor-pointer"
-                    >
-                      x
-                    </button>
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
 
-          <br/>
-          <button className="trip-form-submit">Create Trip</button>
-        </form>
+            {/* invite trip-mates */}
+            <div className="mt-2 text-left">
+              <label className="trip-form-label text-gray-400">
+                Invite Trip-Mates
+              </label>
+              <div className="flex gap-1 mt-1">
+                <input
+                  type="email"
+                  placeholder="Email address"
+                  value={inviteEmail}
+                  onChange={(e) => setInviteEmail(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleInvite();
+                    }
+                  }}
+                  className="trip-form-input w-full"
+                />
+                <button
+                  type="button"
+                  onClick={handleInvite}
+                  className="text-sm px-3 py-1 bg-gray-200 rounded-md cursor-pointer hover:bg-gray-300"
+                >
+                  Add
+                </button>
+              </div>
+              {inviteError && (
+                <p className="text-red-500 text-xs text-left mt-1">{inviteError}</p>
+              )}
+              {invitedEmails.length > 0 && (
+                <div className="flex flex-wrap gap-1 mt-2">
+                  {invitedEmails.map((email, i) => (
+                    <span
+                      key={email}
+                      className="text-xs bg-gray-100 border border-gray-300 rounded-full px-3 py-1 flex items-center gap-1"
+                    >
+                      {email}
+                      <button
+                        type="button"
+                        onClick={() => removeInvite(i)}
+                        className="text-gray-400 hover:text-red-500 cursor-pointer"
+                      >
+                        x
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <br/>
+            <button className="trip-form-submit">Create Trip</button>
+          </form>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
