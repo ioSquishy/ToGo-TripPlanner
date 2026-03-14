@@ -21,8 +21,9 @@ interface FormValues {
 
 export default function CreateTrip() {
   const router = useRouter();
-  const { user, signInWithGoogle } = useAuth();
+  const { user, loading, signInWithGoogle } = useAuth();
   const locationInputRef = useRef<google.maps.places.PlaceAutocompleteElement>(null);
+  const previousUserRef = useRef(user); // tracks login state
 
   const [formValues, setFormValues] = useState<FormValues>({
     tripName: null,
@@ -73,6 +74,25 @@ export default function CreateTrip() {
     locationInput.addEventListener("gmp-select", onSelect);
     return () => locationInput.removeEventListener("gmp-select", onSelect);
   }, []);
+
+  // Redirect to select-trip if logging in without making new trip
+  useEffect(() => {
+    if (loading) return;
+
+    const wasLoggedOut = previousUserRef.current === null;
+    const isNowLoggedIn = user !== null;
+
+    if (wasLoggedOut && isNowLoggedIn) {
+      // if any form values were edited
+      if (formValues.tripName || formValues.location || formValues.startDate || formValues.endDate) {
+        // don't redirect
+      } else {
+        router.push("/select-trip");
+      }
+    }
+
+    previousUserRef.current = user;
+  }, [user, loading, router]);
 
   // updates remaining form values
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
