@@ -35,6 +35,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const u = result.user;
+
+      // Ensure Firestore sees an authenticated token before first write.
+      await u.getIdToken(true);
+
       await saveUser(u.uid, u.displayName ?? "", u.email ?? "", u.photoURL ?? "");
     } catch (error) {
       // warn because they could've just closed the modal
